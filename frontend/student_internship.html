@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลนิสิตฝึกงาน | ระบบจัดการฝึกงาน มศว</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --swu-orange: #d93d25;
+            --swu-orange-hover: #b82d18;
+            --swu-gray: #6b6b6b;
+            --swu-dark-gray: #4a4a4a;
+            --swu-light-gray: #f5f5f5;
+            --white: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--swu-light-gray);
+            color: var(--swu-dark-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h2 {
+            color: var(--swu-orange);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--swu-gray);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--swu-dark-gray);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--swu-orange);
+            box-shadow: 0 0 10px rgba(217, 61, 37, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--swu-orange);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--swu-orange-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(217, 61, 37, 0.3);
+        }
+
+        .btn-back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: var(--swu-gray);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .btn-back:hover {
+            color: var(--swu-orange);
+        }
+
+        .info-card {
+            background: #fff8f7;
+            border-left: 4px solid var(--swu-orange);
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+
+        .info-card p {
+            font-size: 0.85rem;
+            color: #8a3023;
+            margin: 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: var(--swu-gray);
+        }
+
+        .tab.active {
+            background: var(--white);
+            color: var(--swu-orange);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .history-item {
+            background: var(--white);
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-color: var(--swu-orange);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-advisor_approved { background: #dbeafe; color: #1e40af; }
+        .status-letter_issued { background: #ffedd5; color: #9a3412; }
+        .status-completed { background: #dcfce7; color: #166534; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <i class="fas fa-file-contract" style="font-size: 3rem; color: var(--swu-orange); margin-bottom: 15px;"></i>
+            <h2>ข้อมูลความจำนงขอฝึกงาน</h2>
+            <p>กรุณากรอกข้อมูลสถานประกอบการและตำแหน่งที่ต้องการฝึกงาน</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" id="tab-form" onclick="switchView('form')">
+                <i class="fas fa-plus-circle"></i> ยื่นคำขอใหม่
+            </div>
+            <div class="tab" id="tab-history" onclick="switchView('history')">
+                <i class="fas fa-history"></i> ประวัติคำขอ
+            </div>
+        </div>
+
+        <div id="view-form">
+            <div class="info-card">
+                <p><i class="fas fa-info-circle"></i> ข้อมูลนี้จะถูกส่งไปยังระบบเพื่อให้เจ้าหน้าที่และอาจารย์ตรวจสอบความเหมาะสม</p>
+            </div>
+
+        <form id="request-form">
+            <div class="form-group">
+                <label>ชื่อสถานประกอบการ/บริษัท</label>
+                <input type="text" id="company_name" name="company_name" placeholder="เช่น บริษัท พัฒนาซอฟต์แวร์ จำกัด" required>
+            </div>
+
+            <div class="form-group">
+                <label>ตำแหน่งที่ต้องการฝึกงาน</label>
+                <input type="text" id="position" name="position" placeholder="เช่น Web Developer, Graphic Designer" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>วันที่เริ่มฝึกงาน</label>
+                    <input type="date" id="start_date" name="start_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>วันที่สิ้นสุดการฝึกงาน</label>
+                    <input type="date" id="end_date" name="end_date" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> บันทึกและส่งคำขอ
+            </button>
+        </form>
+        </div>
+
+        <div id="view-history" style="display: none;">
+            <div id="history-list">
+                <!-- Data will load here -->
+                <p style="text-align: center; color: #888; padding: 20px;">กำลังโหลดประวัติ...</p>
+            </div>
+        </div>
+
+        <a href="index.html" class="btn-back">
+            <i class="fas fa-arrow-left" style="margin-right: 5px;"></i> กลับหน้าหลัก
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('request-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                company_name: document.getElementById('company_name').value,
+                position: document.getElementById('position').value,
+                start_date: document.getElementById('start_date').value,
+                end_date: document.getElementById('end_date').value
+            };
+
+            try {
+                const response = await fetch('api/save_internship_request.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ!',
+                        text: result.message,
+                        confirmButtonColor: '#d93d25'
+                    }).then(() => {
+                        window.location.href = 'index.html';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ล้มเหลว',
+                        text: result.error,
+                        confirmButtonColor: '#d93d25'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถเชื่อมต่อกับระบบได้ กรุณาลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#d93d25'
+                });
+            }
+        });
+
+        // สลับมุมมอง Tab
+        function switchView(view) {
+            const formView = document.getElementById('view-form');
+            const historyView = document.getElementById('view-history');
+            const tabForm = document.getElementById('tab-form');
+            const tabHistory = document.getElementById('tab-history');
+
+            if (view === 'form') {
+                formView.style.display = 'block';
+                historyView.style.display = 'none';
+                tabForm.classList.add('active');
+                tabHistory.classList.remove('active');
+            } else {
+                formView.style.display = 'none';
+                historyView.style.display = 'block';
+                tabForm.classList.remove('active');
+                tabHistory.classList.add('active');
+                fetchHistory();
+            }
+        }
+
+        async function fetchHistory() {
+            const historyList = document.getElementById('history-list');
+            try {
+                const res = await fetch('api/get_my_internship_requests.php');
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (data.requests.length === 0) {
+                        historyList.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">ยังไม่มีประวัติการยื่นคำขอ</p>';
+                        return;
+                    }
+
+                    const statusLabels = {
+                        'pending': '1: รับเรื่องเข้าระบบ',
+                        'advisor_approved': '2: อาจารย์ที่ปรึกษาอนุมัติ',
+                        'letter_issued': '3: ออกใบส่งตัว',
+                        'completed': '4: ฝึกงานเสร็จสิ้น',
+                        'cancelled': '5: ยกเลิก'
+                    };
+
+                    historyList.innerHTML = data.requests.map(req => `
+                        <div class="history-item">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="font-weight: 700; color: var(--swu-dark-gray);">${req.company_name}</div>
+                                <div style="font-size: 0.75rem; color: #999;">${new Date(req.created_at).toLocaleDateString('th-TH')}</div>
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--swu-gray); margin-top: 4px;">
+                                ตำแหน่ง: ${req.position}
+                            </div>
+                            <div style="font-size: 0.8rem; color: #888; margin-top: 2px;">
+                                ระยะเวลา: ${req.start_date} ถึง ${req.end_date}
+                            </div>
+                            <div class="status-badge status-${req.status || 'pending'}">
+                                ${statusLabels[req.status] || 'ไม่ระบุสถานะ'}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    historyList.innerHTML = `<p style="text-align: center; color: red; padding: 20px;">${data.error}</p>`;
+                }
+            } catch (e) {
+                historyList.innerHTML = '<p style="text-align: center; color: red; padding: 20px;">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+            }
+        }
+
+        window.onload = checkSession;
+    </script>
+</body>
+</html>

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Srinakharinwirot University |ระบบจัดการฝึกงาน</title>
+    <!-- ใช้ฟอนต์ Prompt จาก Google Fonts เพื่อความทันสมัยอ่านง่าย -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- ไอคอนฟรีจาก FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ตัวแปรสี Theme มศว (แสด-เทา-ขาว) */
+        :root {
+            --swu-orange: #d93d25;
+            --swu-orange-hover: #b82d18;
+            --swu-gray: #6b6b6b;
+            --swu-dark-gray: #4a4a4a;
+            --swu-light-gray: #f5f5f5;
+            --white: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--swu-light-gray);
+            color: var(--swu-dark-gray);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar & Header (Glassmorphism Effect) */
+        header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        /* โลโก้ มศว (ใช้ไอคอน + ข้อความทดแทนชั่วคราว) */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .logo-img {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text h1 {
+            font-size: 0.9rem;
+            color: var(--swu-dark-gray);
+            line-height: 1.2;
+        }
+
+        .logo-text span {
+            font-size: 0.65rem;
+            color: var(--swu-gray);
+        }
+
+        /* มุมขวาบน เมนู Home & Login */
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--swu-dark-gray);
+            font-weight: 600;
+            font-size: 0.82rem;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a:hover {
+            color: var(--swu-orange);
+        }
+
+        .login-btn {
+            background-color: var(--swu-gray);
+            color: var(--white) !important;
+            padding: 6px 16px;
+            border-radius: 30px;
+            transition: all 0.3s ease !important;
+            border: none;
+            cursor: pointer;
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+
+        .login-btn:hover {
+            background-color: var(--swu-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(217, 61, 37, 0.3);
+        }
+
+        /* ปุ่มเปลี่ยนภาษา */
+        .lang-toggle {
+            display: flex;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1.5px solid var(--swu-gray);
+        }
+
+        .lang-btn {
+            padding: 3px 10px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 600;
+            font-size: 0.72rem;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--swu-gray);
+        }
+
+        .lang-btn.active {
+            background-color: var(--swu-orange);
+            color: var(--white);
+        }
+
+        .lang-btn:not(.active):hover {
+            background-color: var(--swu-light-gray);
+        }
+
+        /* Hero Section ส่วนเนื้อหาหลัก */
+        main {
+            flex: 1;
+            margin-top: 85px;
+            /* เว้นที่ให้ Navbar */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 245, 245, 0.9) 100%),
+                url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            padding: 100px 5%;
+            text-align: center;
+            border-bottom: 5px solid var(--swu-orange);
+        }
+
+        .hero h2 {
+            font-size: 3rem;
+            color: var(--swu-dark-gray);
+            margin-bottom: 20px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .hero h2 span {
+            color: var(--swu-orange);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--swu-gray);
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+            animation: fadeInUp 1s ease;
+        }
+
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 0 5%;
+            margin-top: -40px;
+            margin-bottom: 60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            text-align: center;
+            transition: all 0.4s ease;
+            border-top: 4px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-top: 4px solid var(--swu-orange);
+            box-shadow: 0 15px 40px rgba(217, 61, 37, 0.15);
+        }
+
+        .card-media-wrapper {
+            height: 95px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .card-media-wrapper i {
+            font-size: 3rem;
+            color: var(--swu-orange);
+        }
+
+        .card-img {
+            max-width: 140px;
+            max-height: 85px;
+            object-fit: contain;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: var(--swu-dark-gray);
+            font-size: 1.1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .card p {
+            color: var(--swu-gray);
+            font-size: 0.9rem;
+        }
+
+        /* Footer ติดต่อเจ้าหน้าที่ */
+        footer {
+            background-color: var(--swu-dark-gray);
+            color: var(--white);
+            padding: 50px 5% 20px 5%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-info h4,
+        .footer-contact h4 {
+            color: var(--swu-orange);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-info p {
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        /* ฟอร์มติดต่อเจ้าหน้าที่ */
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #555;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+            font-family: 'Prompt', sans-serif;
+            transition: border 0.3s ease;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--swu-orange);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-form button {
+            background-color: var(--swu-orange);
+            color: var(--white);
+            border: none;
+            padding: 12px 0;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .contact-form button:hover {
+            background-color: var(--swu-orange-hover);
+        }
+
+        .copyright {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 20px;
+            border-top: 1px solid #555;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* สำหรับมือถือ (Mobile Responsive) */
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 10px;
+                gap: 5px;
+            }
+
+            .logo-text h1 {
+                font-size: 0.8rem;
+            }
+
+            .logo-text span {
+                display: none;
+            }
+
+            /* ซ่อนชื่อยาวในมือถือ */
+            .logo-img {
+                height: 35px;
+            }
+
+            .nav-links {
+                gap: 5px;
+            }
+
+            #nav-home {
+                margin-left: 10px;
+                /* ขยับปุ่มหน้าหลักไปทางขวาอีกนิด */
+            }
+
+            .nav-links span.nav-text {
+                display: none;
+            }
+
+            /* ซ่อนคำว่า Home โชว์แต่ไอคอน */
+
+            .login-btn {
+                padding: 5px 10px;
+                /* ลดขนาดปุ่มลง */
+                font-size: 0.7rem;
+            }
+
+            .lang-toggle {
+                border-width: 1px;
+            }
+
+            .lang-btn {
+                padding: 2px 6px;
+                font-size: 0.65rem;
+            }
+
+            .hero {
+                padding: 60px 5% 40px 5%;
+            }
+
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+                padding: 0 10px;
+                margin-bottom: 20px;
+            }
+
+            .action-cards {
+                grid-template-columns: repeat(2, 1fr);
+                /* ปรับเป็น 2 คอลัมน์ (2x2) */
+                margin-top: -20px;
+                padding: 0 10px;
+                gap: 10px;
+            }
+
+            .card {
+                padding: 15px 10px;
+                /* ลด padding */
+            }
+
+            .card-media-wrapper {
+                height: 60px;
+                /* ลดความสูงของส่วนรูป */
+                margin-bottom: 10px;
+            }
+
+            .card-media-wrapper i {
+                font-size: 2rem;
+            }
+
+            /* ลดขนาดไอคอน */
+            .card-img {
+                max-width: 80px;
+                max-height: 50px;
+            }
+
+            /* ลดขนาดรูป */
+
+            .card h3 {
+                font-size: 0.95rem;
+                /* ลดขนาดตัวอักษรหัวข้อ */
+                min-height: auto;
+                margin-bottom: 5px;
+            }
+
+            .card p {
+                font-size: 0.8rem;
+            }
+
+            /* ลดขนาดตัวอักษรคำบรรยาย */
+
+            footer {
+                grid-template-columns: 1fr;
+                padding: 40px 20px 20px 20px;
+                gap: 30px;
+            }
+        }
+
+        /* สำหรับจอเล็กพิเศษ (Small Mobile) */
+        @media (max-width: 380px) {
+            .logo-text h1 {
+                display: none;
+            }
+
+            /* ซ่อนชื่อมหาลัยเหลือแต่รูปโลโก้ในจอเล็กมาก */
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- แถบเมนูด้านบน -->
+    <header>
+        <div class="logo-container">
+            <!-- โลโก้ มศว ของจริง -->
+            <img src="swu-logo.png" alt="SWU Logo" class="logo-img">
+            <div class="logo-text">
+                <h1 data-th="มหาวิทยาลัยศรีนครินทรวิโรฒ" data-en="Srinakharinwirot University">
+                    มหาวิทยาลัยศรีนครินทรวิโรฒ</h1>
+                <span data-th="ระบบบริหารจัดการการฝึกงานและสหกิจศึกษา"
+                    data-en="Internship & Cooperative Education Management System">ระบบบริหารจัดการการฝึกงานและสหกิจศึกษา</span>
+            </div>
+        </div>
+
+        <nav class="nav-links">
+            <a href="#" id="nav-home"><i class="fas fa-home"></i> <span class="nav-text" data-th="หน้าหลัก"
+                    data-en="Home">หน้าหลัก</span></a>
+            <a href="user_management.html" id="nav-admin" style="display: none;"><i class="fas fa-users-cog"></i> <span class="nav-text" data-th="จัดการผู้ใช้งาน"
+                    data-en="Manage Users">จัดการผู้ใช้งาน</span></a>
+            <a href="student_internship.html" id="nav-student-info" style="display: none;"><i class="fas fa-user-edit"></i> <span class="nav-text" data-th="ข้อมูลนิสิต"
+                    data-en="Student Info">ข้อมูลนิสิต</span></a>
+            <a href="teacher_internship.html" id="nav-teacher" style="display: none;"><i class="fas fa-tasks"></i> <span class="nav-text" data-th="รายการขอฝึกงาน"
+                    data-en="Internship Requests">รายการขอฝึกงาน</span></a>
+            <div class="lang-toggle">
+                <button class="lang-btn active" id="btn-th" onclick="switchLang('th')">TH</button>
+                <button class="lang-btn" id="btn-en" onclick="switchLang('en')">ENG</button>
+            </div>
+            <a href="login.html" class="login-btn" id="nav-login"><i class="fas fa-sign-in-alt"></i> <span
+                    data-th="เข้าสู่ระบบ" data-en="Login">เข้าสู่ระบบ</span></a>
+        </nav>
+    </header>
+
+    <!-- เนื้อหาหลัก (Main Content) -->
+    <main>
+        <div class="hero">
+            <h2 data-th='เปิดประตูสู่ <span>ประสบการณ์การทำงานจริง</span>'
+                data-en='Open the Door to <span>Real Work Experience</span>'>เปิดประตูสู่
+                <span>ประสบการณ์การทำงานจริง</span></h2>
+            <p data-th="ระบบค้นหาสถานประกอบการ ยื่นความจำนงขอฝึกงาน ประเมินผล และติดตามสถานะตลอดโครงการ สำหรับนิสิตมหาวิทยาลัยศรีนครินทรวิโรฒ"
+                data-en="Search for companies, submit internship applications, evaluate performance, and track your status throughout the program — for students of Srinakharinwirot University.">
+                ระบบค้นหาสถานประกอบการ ยื่นความจำนงขอฝึกงาน ประเมินผล และติดตามสถานะตลอดโครงการ
+                สำหรับนิสิตมหาวิทยาลัยศรีนครินทรวิโรฒ</p>
+        </div>
+
+        <!-- กล่องเมนูลัด 3 กล่อง -->
+        <div class="action-cards">
+            <div class="card" onclick="window.open('https://drive.google.com/file/d/1YNrk2CEBeDCe-GRXs-C_T1rvzxw6g_L2/view', '_blank')" style="cursor: pointer;">
+                <div class="card-media-wrapper">
+                    <img src="is-logo.png" alt="Information Studies Logo" class="card-img">
+                </div>
+                <h3 data-th="หลักสูตร คณะมนุษยศาสตร์ สาขาสารสนเทศศึกษา"
+                    data-en="Faculty of Humanities — Information Studies Program">หลักสูตร คณะมนุษยศาสตร์
+                    สาขาสารสนเทศศึกษา</h3>
+                <p data-th="หลักสูตรการเรียน การสอน ตามแต่ละชั้นปี 1-4 และเกณฑ์การจบของนักศึกษา"
+                    data-en="Curriculum for Year 1–4 and graduation requirements for students.">หลักสูตรการเรียน การสอน
+                    ตามแต่ละชั้นปี 1-4 และเกณฑ์การจบของนักศึกษา</p>
+            </div>
+            <div class="card" onclick="window.open('https://hu.swu.ac.th/news/category/%E0%B8%9D%E0%B9%88%E0%B8%B2%E0%B8%A2%E0%B8%9E%E0%B8%B1%E0%B8%92%E0%B8%99%E0%B8%B2%E0%B8%A8%E0%B8%B1%E0%B8%81%E0%B8%A2%E0%B8%A0%E0%B8%B2%E0%B8%9E%E0%B8%99%E0%B8%B4%E0%B8%AA%E0%B8%B4%E0%B8%95', '_blank')" style="cursor: pointer;">
+                <div class="card-media-wrapper">
+                    <img src="news-logo.png" alt="SWU News Logo" class="card-img">
+                </div>
+                <h3 data-th="ประชาสัมพันธ์กิจกรรม" data-en="Events & Activities">ประชาสัมพันธ์กิจกรรม</h3>
+                <p data-th="ประชาสัมพันธ์กิจกรรมของคณะมนุษยศาสตร์"
+                    data-en="News and events from the Faculty of Humanities.">ประชาสัมพันธ์กิจกรรมของคณะมนุษยศาสตร์</p>
+            </div>
+            <div class="card" onclick="window.location.href='internship_directory.html'" style="cursor: pointer;">
+                <div class="card-media-wrapper">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h3 data-th="ข้อมูลนิสิตปัจจุบัน" data-en="Current Students">ข้อมูลนิสิตปัจจุบัน</h3>
+                <p id="student-info" data-th="ข้อมูลรายชื่อประจำตัวนิสิตปัจจุบัน"
+                    data-en="Student directory and personal information.">ข้อมูลรายชื่อประจำตัวนิสิตปัจจุบัน</p>
+            </div>
+            <div class="card" onclick="window.open('https://is.hu.swu.ac.th/faculty/', '_blank')" style="cursor: pointer;">
+                <div class="card-media-wrapper">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3 data-th="ข้อมูลอาจารย์ในคณะสารสนเทศศึกษา" data-en="Faculty Staff Directory">
+                    ข้อมูลอาจารย์ในคณะสารสนเทศศึกษา</h3>
+                <p id="staff-info" data-th="ข้อมูลและช่องทางการติดต่อของอาจารย์ในคณะสารสนเทศศึกษา"
+                    data-en="Contact information for Information Studies faculty members.">
+                    ข้อมูลและช่องทางการติดต่อของอาจารย์ในคณะสารสนเทศศึกษา</p>
+            </div>
+    </main>
+
+    <!-- ส่วนท้ายเว็บ (Footer) -> ใช้สีเทาเข้ม / ขาว / มีส่วนติดต่อ -->
+    <footer>
+        <div class="footer-info">
+            <h4><i class="fas fa-university"></i> Srinakharinwirot University</h4>
+            <p data-th='<strong>กองบริการการศึกษา (ส่วนงานฝึกงาน)</strong><br>114 สุขุมวิท 23 แขวงคลองเตยเหนือ เขตวัฒนา กรุงเทพฯ 10110'
+                data-en='<strong>Division of Academic Services (Internship Office)</strong><br>114 Sukhumvit 23, Klongtoey Nua, Watthana, Bangkok 10110'>
+                <strong>กองบริการการศึกษา (ส่วนงานฝึกงาน)</strong><br>114 สุขุมวิท 23 แขวงคลองเตยเหนือ เขตวัฒนา กรุงเทพฯ
+                10110</p>
+            <p data-th='<i class="fas fa-phone-alt"></i> โทรศัพท์: 02-260-xxxx ต่อ 1234'
+                data-en='<i class="fas fa-phone-alt"></i> Phone: 02-260-xxxx ext. 1234'><i class="fas fa-phone-alt"></i>
+                โทรศัพท์: 02-260-xxxx ต่อ 1234</p>
+            <p><i class="fas fa-envelope"></i> <span data-th="อีเมล" data-en="Email">อีเมล</span>:
+                internship@g.swu.ac.th</p>
+        </div>
+
+        <div class="footer-contact">
+            <h4 data-th='<i class="fas fa-headset"></i> ติดต่อเจ้าหน้าที่'
+                data-en='<i class="fas fa-headset"></i> Contact Support'><i class="fas fa-headset"></i>
+                ติดต่อเจ้าหน้าที่</h4>
+            <form class="contact-form"
+                onsubmit="event.preventDefault(); alert(currentLang==='th'?'ระบบกำลังพัฒนาระบบหลังบ้านสำหรับรับข้อความครับ':'The backend system for receiving messages is under development.');">
+                <input type="text" id="input-name" placeholder="ชื่อ - นามสกุล" data-ph-th="ชื่อ - นามสกุล"
+                    data-ph-en="Full Name" required>
+                <input type="email" id="input-email" placeholder="อีเมลติดต่อกลับ" data-ph-th="อีเมลติดต่อกลับ"
+                    data-ph-en="Your Email" required>
+                <textarea rows="3" id="input-msg" placeholder="ข้อความที่ต้องการสอบถาม..."
+                    data-ph-th="ข้อความที่ต้องการสอบถาม..." data-ph-en="Your message..." required></textarea>
+                <button type="submit" data-th="ส่งข้อความ" data-en="Send Message">ส่งข้อความ</button>
+            </form>
+        </div>
+
+        <div class="copyright">
+            <p data-th="&copy; 2026 ระบบการจัดการฝึกงาน มหาวิทยาลัยศรีนครินทรวิโรฒ | ออกแบบและพัฒนาเบื้องต้น"
+                data-en="&copy; 2026 Internship Management System — Srinakharinwirot University | Designed & Developed">
+                &copy; 2026 ระบบการจัดการฝึกงาน มหาวิทยาลัยศรีนครินทรวิโรฒ | ออกแบบและพัฒนาเบื้องต้น
+            </p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">
+                <a href="user_management.html" style="color: #666; text-decoration: none;"><i class="fas fa-lock"></i>
+                    ส่วนทางเทคนิค (Admin Dashboard)</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        let currentLang = 'th';
+
+        function switchLang(lang) {
+            currentLang = lang;
+
+            // สลับปุ่ม active
+            document.getElementById('btn-th').classList.toggle('active', lang === 'th');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+            // แปลข้อความทุก element ที่มี data-th / data-en
+            const key = lang === 'th' ? 'th' : 'en';
+            document.querySelectorAll('[data-th][data-en]').forEach(el => {
+                el.innerHTML = el.getAttribute('data-' + key);
+            });
+
+            // แปล placeholder ของ input / textarea
+            document.querySelectorAll('[data-ph-th][data-ph-en]').forEach(el => {
+                el.placeholder = el.getAttribute('data-ph-' + key);
+            });
+
+            // เปลี่ยน lang attribute ของ html
+            document.documentElement.lang = lang === 'th' ? 'th' : 'en';
+
+            // โหลดข้อมูลจาก DB ใหม่เผื่อมีข้อความแปล
+            fetchDBInfo();
+        }
+
+        async function fetchDBInfo() {
+            try {
+                // ดึงข้อมูลนิสิต
+                const resStudents = await fetch('api/get_students.php');
+                const dataStudents = await resStudents.json();
+                if (!dataStudents.error) {
+                    const studentP = document.getElementById('student-info');
+                    const textTh = `ปัจจุบันมีนิสิตรวม ${dataStudents.count} คน`;
+                    const textEn = `Currently ${dataStudents.count} students enrolled.`;
+                    studentP.setAttribute('data-th', textTh);
+                    studentP.setAttribute('data-en', textEn);
+                    studentP.innerHTML = currentLang === 'th' ? textTh : textEn;
+                }
+
+                // ดึงข้อมูลอาจารย์
+                const resStaff = await fetch('api/get_staff.php');
+                const dataStaff = await resStaff.json();
+                if (!dataStaff.error) {
+                    const staffP = document.getElementById('staff-info');
+                    const textTh = `มีอาจารย์ประจำในคณะจำนวน ${dataStaff.count} ท่าน`;
+                    const textEn = `Total of ${dataStaff.count} faculty members.`;
+                    staffP.setAttribute('data-th', textTh);
+                    staffP.setAttribute('data-en', textEn);
+                    staffP.innerHTML = currentLang === 'th' ? textTh : textEn;
+                }
+            } catch (e) {
+                console.error('Failed to connect to database API:', e);
+            }
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const res = await fetch('api/check_session.php');
+                const data = await res.json();
+                const authBtn = document.getElementById('nav-login');
+
+                if (data.authorized) {
+                    // Change to Logout
+                    authBtn.href = 'api/logout.php';
+                    authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> <span data-th="ออกจากระบบ" data-en="Logout">' +
+                        (currentLang === 'th' ? 'ออกจากระบบ' : 'Logout') + '</span>';
+                    authBtn.style.backgroundColor = '#6b6b6b';
+
+                    // If user is admin, maybe show a special link (optional)
+                    if (data.role === 'admin') {
+                        console.log("Admin logged in");
+                        const adminNav = document.getElementById('nav-admin');
+                        if (adminNav) adminNav.style.display = 'flex';
+                    } else if (data.role === 'student') {
+                        console.log("Student logged in");
+                        const studentNav = document.getElementById('nav-student-info');
+                        if (studentNav) studentNav.style.display = 'flex';
+                    } else if (data.role === 'teacher') {
+                        console.log("Teacher logged in");
+                        const teacherNav = document.getElementById('nav-teacher');
+                        if (teacherNav) teacherNav.style.display = 'flex';
+                    }
+                }
+            } catch (e) {
+                console.error('Auth check failed:', e);
+            }
+        }
+
+        window.onload = () => {
+            fetchDBInfo();
+            checkAuthStatus();
+        };
+    </script>
+
+</body>
+
+</html>

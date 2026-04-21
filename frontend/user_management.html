@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการผู้ใช้งาน | ระบบจัดการฝึกงาน มศว</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS Library for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Security Check: Redirect immediately if not an Admin
+        async function checkAuth() {
+            try {
+                const res = await fetch('api/check_session.php');
+                const data = await res.json();
+                if (!data.authorized || data.role !== 'admin') {
+                    window.location.href = 'login.html';
+                } else {
+                    // Show body and start loading data
+                    document.body.style.display = 'flex';
+                    fetchData();
+                }
+            } catch (e) {
+                window.location.href = 'login.html';
+            }
+        }
+        window.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+    <style>
+        :root {
+            --swu-orange: #d93d25;
+            --swu-orange-hover: #b82d18;
+            --swu-gray: #6b6b6b;
+            --swu-dark-gray: #4a4a4a;
+            --swu-light-gray: #f5f5f5;
+            --white: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        /* Hide body by default to prevent flash of content */
+        body {
+            display: none;
+            background-color: var(--swu-light-gray);
+            color: var(--swu-dark-gray);
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--swu-dark-gray);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 0;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 0 25px 30px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.1rem;
+            color: var(--swu-orange);
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #ccc;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(255,255,255,0.05);
+            color: var(--white);
+            border-left: 4px solid var(--swu-orange);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-add {
+            background-color: var(--swu-orange);
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add:hover {
+            background-color: var(--swu-orange-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-export {
+            background-color: #2e7d32;
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-export:hover {
+            background-color: #1b5e20;
+            transform: translateY(-2px);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 10px 18px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--swu-gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: var(--swu-orange);
+            border-bottom-color: var(--swu-orange);
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #fcfcfc;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--swu-light-gray);
+            color: var(--swu-gray);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--swu-light-gray);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--white);
+            width: 100%;
+            max-width: 520px;
+            border-radius: 12px;
+            padding: 20px 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .form-group.full { grid-column: 1 / -1; }
+
+        label { font-weight: 600; font-size: 0.85rem; color: var(--swu-gray); }
+
+        input, select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-cancel { background: #eee; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .btn-save { background: var(--swu-orange); color: var(--white); border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 45px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--swu-orange);
+            box-shadow: 0 4px 15px rgba(217, 61, 37, 0.1);
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-edit { background-color: #e3f2fd; color: #1976d2; }
+        .btn-edit:hover { background-color: #1976d2; color: white; }
+        
+        .btn-delete { background-color: #ffebee; color: #d32f2f; }
+        .btn-delete:hover { background-color: #d32f2f; color: white; }
+
+        /* --- Mobile Responsive Updates --- */
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px 0;
+            }
+            .sidebar-header {
+                padding: 0 20px 10px 20px;
+                margin-bottom: 10px;
+                border-bottom: none;
+            }
+            .sidebar-header h3 { font-size: 1rem; }
+            
+            .nav-item {
+                padding: 10px 20px;
+                display: inline-flex;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Responsive Table Scroll */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table {
+                min-width: 600px; /* Ensure table is wide enough to trigger scroll */
+            }
+
+            .modal {
+                width: 95%;
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>SWU Internship</h3>
+            <p style="font-size: 0.8rem; color: #888;">ระบบจัดการฝึกงาน</p>
+        </div>
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i> กลับหน้าหลัก (Home)
+        </a>
+        <a href="#" class="nav-item active" id="side-users" onclick="switchMainView('users')">
+            <i class="fas fa-users-cog"></i> จัดการผู้ใช้งาน
+        </a>
+        <a href="#" class="nav-item" id="side-reports" onclick="switchMainView('reports')">
+            <i class="fas fa-file-contract"></i> ข้อมูลความจำนงขอฝึกงาน
+        </a>
+        <a href="api/logout.php" class="nav-item" style="margin-top: auto; color: #ff6b6b;">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+        </a>
+    </div>
+
+    <div class="main-content" id="view-users">
+        <div class="header-actions">
+            <h2>รายชื่อสมาชิกในระบบ</h2>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-export" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i> ส่งออกไฟล์ Excel
+                </button>
+                <button class="btn-add" onclick="openModal()">
+                    <i class="fas fa-plus"></i> เพิ่มสมาชิกใหม่
+                </button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" id="tab-student" onclick="switchTab('student')">รายชื่อนิสิต</div>
+            <div class="tab" id="tab-teacher" onclick="switchTab('teacher')">รายชื่ออาจารย์</div>
+            <div class="tab" id="tab-admin" onclick="switchTab('admin')">รายชื่อผู้ดูแล</div>
+            <div class="tab" id="tab-logs" onclick="switchTab('logs')">ประวัติการเข้าใช้งาน</div>
+        </div>
+
+        <div class="search-container" id="search-box-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="ค้นหาตามชื่อ, รหัส หรืออีเมล..." onkeyup="searchTable()">
+        </div>
+
+        <div class="table-container">
+            <table id="user-table">
+                <thead>
+                    <tr id="table-head">
+                        <!-- Dynamic Head -->
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Dynamic Data -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- New View: Internship Reports -->
+    <div class="main-content" id="view-reports" style="display: none;">
+        <div class="header-actions">
+            <h2>รายงานความจำนงขอฝึกงานทั้งหมด</h2>
+            <div>
+                 <button class="btn-export" onclick="exportRequestsToExcel()">
+                    <i class="fas fa-file-excel"></i> ส่งออกรายงาน (Excel)
+                </button>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="request-search" placeholder="ค้นหาตามชื่อนิสิต หรือบริษัท..." onkeyup="searchRequests()">
+        </div>
+
+        <div class="table-container">
+            <table id="report-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">รหัสนิสิต</th>
+                        <th style="width: 20%;">ชื่อ-นามสกุล</th>
+                        <th style="width: 25%;">สถานประกอบการ/ตำแหน่ง</th>
+                        <th style="width: 15%;">ระยะเวลา</th>
+                        <th style="width: 15%;">สถานะการดำเนินการ</th>
+                        <th style="text-align:center; width: 10%;">เครื่องมือ</th>
+                    </tr>
+                </thead>
+                <tbody id="report-table-body">
+                    <!-- Dynamic Data -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal เพิ่มผู้ใช้งาน -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>เพิ่มสมาชิกใหม่</h3>
+                <i class="fas fa-times" style="cursor: pointer;" onclick="closeModal()"></i>
+            </div>
+            <form id="add-user-form" onsubmit="saveUser(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ประเภทผู้ใช้</label>
+                        <select id="role" onchange="toggleFormFields()" required>
+                            <option value="student">นักศึกษา (Student)</option>
+                            <option value="teacher">อาจารย์ (Teacher)</option>
+                            <option value="admin">ผู้ดูแล (Admin)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="label-code">รหัสนิสิต</label>
+                        <input type="text" id="code" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ชื่อ (First Name)</label>
+                        <input type="text" id="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>นามสกุล (Last Name)</label>
+                        <input type="text" id="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label id="label-major">คณะ/สาขาวิชา</label>
+                        <input type="text" id="major_or_dept" required>
+                    </div>
+                    <div class="form-group" id="year-group">
+                        <label>ชั้นปี</label>
+                        <select id="year">
+                            <option value="1">ปี 1</option>
+                            <option value="2">ปี 2</option>
+                            <option value="3">ปี 3</option>
+                            <option value="4">ปี 4</option>
+                            <option value="5">ปี 5</option>
+                            <option value="6">ปี 6</option>
+                            <option value="7">ปี 7</option>
+                            <option value="8">ปี 8</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>อีเมล (Email)</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>สถานะการใช้งาน</label>
+                        <select id="account_status" required>
+                            <option value="active">ปกติ (Active)</option>
+                            <option value="inactive">ระงับการใช้งาน (Inactive)</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" id="user_id">
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn-save">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal รายละเอียดความจำนงขอฝึกงาน -->
+    <div class="modal-overlay" id="request-detail-overlay">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>รายละเอียดความจำนงขอฝึกงาน</h3>
+                <i class="fas fa-times" style="cursor: pointer;" onclick="closeRequestModal()"></i>
+            </div>
+            <div id="request-detail-content" style="padding: 10px 0;">
+                <!-- Dynamic Content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeRequestModal()">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'student';
+        let allData = []; // Cache data for filtering
+
+        async function fetchData() {
+            const tableBody = document.getElementById('table-body');
+            const tableHead = document.getElementById('table-head');
+            const searchBox = document.getElementById('search-box-container');
+            
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>';
+            searchBox.style.display = currentTab === 'logs' ? 'none' : 'block';
+
+            let endpoint = '';
+            if (currentTab === 'student') endpoint = 'api/get_students.php';
+            else if (currentTab === 'teacher') endpoint = 'api/get_teachers.php';
+            else if (currentTab === 'admin') endpoint = 'api/get_admins.php';
+            else endpoint = 'api/get_login_logs.php';
+            
+            try {
+                const res = await fetch(endpoint);
+                const data = await res.json();
+
+                // Setup Table Header
+                if (currentTab === 'student') {
+                    tableHead.innerHTML = '<th>รหัสนิสิต</th><th>ชื่อ-นามสกุล</th><th>คณะ/สาขา</th><th>อีเมล</th><th>สถานะ</th><th style="text-align:center;">เครื่องมือ</th>';
+                } else if (currentTab === 'teacher') {
+                    tableHead.innerHTML = '<th>รหัสบุคลากร</th><th>ชื่อ-นามสกุล</th><th>ภาควิชา</th><th>อีเมล</th><th>สถานะ</th><th style="text-align:center;">เครื่องมือ</th>';
+                } else if (currentTab === 'admin') {
+                    tableHead.innerHTML = '<th>รหัสผู้ดูแล</th><th>ชื่อ-นามสกุล</th><th>ฝ่าย/กลุ่ม</th><th>อีเมล</th><th>สถานะ</th><th style="text-align:center;">เครื่องมือ</th>';
+                } else {
+                    tableHead.innerHTML = '<th>Username</th><th>วันเวลาที่เข้าใช้</th><th>IP Address</th><th>สถานะ</th>';
+                }
+
+                allData = [];
+                if (currentTab === 'student') allData = data.students || [];
+                else if (currentTab === 'teacher') allData = data.teachers || [];
+                else if (currentTab === 'admin') allData = data.admins || [];
+                else allData = data.logs || [];
+
+                renderTable(allData);
+
+            } catch (e) {
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+            }
+        }
+
+        function renderTable(items) {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="${currentTab === 'requests' ? 6 : 5}" style="text-align:center;">ไม่พบข้อมูล</td></tr>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const row = document.createElement('tr');
+                if (currentTab === 'logs') {
+                    row.innerHTML = `
+                        <td>${item.username}</td>
+                        <td>${new Date(item.login_time).toLocaleString('th-TH')}</td>
+                        <td>${item.ip_address}</td>
+                        <td style="color: ${item.status === 'Success' ? 'green' : 'red'}">${item.status}</td>
+                    `;
+                } else {
+                    const code = currentTab === 'student' ? item.student_code : (currentTab === 'teacher' ? item.staff_code : item.admin_code);
+                    const major = currentTab === 'student' ? item.major : (currentTab === 'teacher' ? item.department : 'ผู้ดูแลระบบ');
+                    const statusText = item.status === 'active' ? 'ปกติ' : 'ระงับ';
+                    const statusClass = item.status === 'active' ? 'status-active' : 'status-inactive';
+                    row.innerHTML = `
+                        <td>${code}</td>
+                        <td>${item.first_name} ${item.last_name}</td>
+                        <td>${major}</td>
+                        <td>${item.email}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td style="text-align:center;">
+                            <div class="action-btns">
+                                <button class="btn-icon btn-edit" title="แก้ไข" onclick="editUser(${index})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" title="ลบ" onclick="deleteUser(${item.user_id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function updateRequestStatus(requestId, status) {
+            const confirmMsg = status === 'Approved' ? 'คุณแน่ใจว่าต้องการอนุมัติคำขอนี้?' : 'คุณแน่ใจว่าต้องการปฏิเสธคำขอนี้?';
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const res = await fetch('api/update_request_status.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: requestId, status: status })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('อัปเดตสถานะโครงการเรียบร้อยแล้ว');
+                    fetchData();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + data.error);
+                }
+            } catch (e) {
+                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+            }
+        }
+
+        function searchTable() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allData.filter(item => {
+                if (currentTab === 'requests') {
+                    return (item.first_name + ' ' + item.last_name).toLowerCase().includes(query) || 
+                           item.company_name.toLowerCase().includes(query) || 
+                           item.position.toLowerCase().includes(query) ||
+                           item.student_id.toLowerCase().includes(query);
+                }
+                const code = (item.student_code || item.staff_code || item.admin_code || item.username || '').toLowerCase();
+                const name = `${item.first_name || ''} ${item.last_name || ''}`.toLowerCase();
+                const email = (item.email || '').toLowerCase();
+                return code.includes(query) || name.includes(query) || email.includes(query);
+            });
+            renderTable(filtered);
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-student').classList.toggle('active', tab === 'student');
+            document.getElementById('tab-teacher').classList.toggle('active', tab === 'teacher');
+            document.getElementById('tab-admin').classList.toggle('active', tab === 'admin');
+            document.getElementById('tab-logs').classList.toggle('active', tab === 'logs');
+            document.getElementById('search-input').value = '';
+            
+            // Hide add/export buttons for requests and logs
+            const actions = document.querySelector('#view-users .header-actions div');
+            if (tab === 'logs') {
+                actions.style.display = 'none';
+            } else {
+                actions.style.display = 'flex';
+            }
+            
+            fetchData();
+        }
+
+        function openModal(isEdit = false) {
+            const modalTitle = document.querySelector('.modal-header h3');
+            const passField = document.getElementById('password').parentElement;
+            const roleSelect = document.getElementById('role');
+            
+            if (!isEdit) {
+                document.getElementById('add-user-form').reset();
+                document.getElementById('user_id').value = '';
+                modalTitle.innerText = 'เพิ่มสมาชิกใหม่';
+                passField.style.display = 'flex';
+                document.getElementById('password').required = true;
+                roleSelect.disabled = false;
+                document.getElementById('account_status').value = 'active';
+            } else {
+                modalTitle.innerText = 'แก้ไขข้อมูลสมาชิก';
+                passField.style.display = 'none'; 
+                document.getElementById('password').required = false;
+                roleSelect.disabled = true; 
+            }
+            
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function editUser(index) {
+            const user = allData[index];
+            openModal(true);
+            
+            document.getElementById('user_id').value = user.user_id;
+            document.getElementById('role').value = currentTab;
+            document.getElementById('code').value = currentTab === 'student' ? user.student_code : (currentTab === 'teacher' ? user.staff_code : user.admin_code);
+            document.getElementById('first_name').value = user.first_name;
+            document.getElementById('last_name').value = user.last_name;
+            document.getElementById('major_or_dept').value = currentTab === 'student' ? user.major : (currentTab === 'teacher' ? user.department : 'ฝ่ายไอที');
+            document.getElementById('email').value = user.email;
+            document.getElementById('username').value = user.username;
+            document.getElementById('account_status').value = user.status;
+            
+            if (currentTab === 'student') {
+                document.getElementById('year').value = user.year || '1';
+            }
+            
+            toggleFormFields();
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้งานนี้?')) return;
+            
+            try {
+                const res = await fetch('api/delete_user.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('ลบข้อมูลเรียบร้อยแล้ว');
+                    fetchData();
+                } else {
+                    alert('ไม่สามารถลบได้: ' + result.error);
+                }
+            } catch (e) {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+        function toggleFormFields() {
+            const role = document.getElementById('role').value;
+            const labelCode = document.getElementById('label-code');
+            const labelMajor = document.getElementById('label-major');
+            const majorField = document.getElementById('major_or_dept').parentElement;
+            const majorInput = document.getElementById('major_or_dept');
+            
+            if (role === 'student') {
+                labelCode.innerText = 'รหัสนิสิต';
+                labelMajor.innerText = 'คณะ/สาขาวิชา';
+                majorField.style.display = 'flex';
+                majorInput.required = true;
+            } else if (role === 'teacher') {
+                labelCode.innerText = 'รหัสบุคลากร';
+                labelMajor.innerText = 'ภาควิชา';
+                majorField.style.display = 'flex';
+                majorInput.required = true;
+            } else {
+                labelCode.innerText = 'รหัสผู้ดูแล';
+                majorField.style.display = 'none';
+                majorInput.required = false;
+            }
+
+            // Show/Hide year only for students
+            const yearGroup = document.getElementById('year-group');
+            yearGroup.style.display = role === 'student' ? 'flex' : 'none';
+        }
+
+        async function saveUser(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('.btn-save');
+            const userId = document.getElementById('user_id').value;
+            const isEdit = userId !== '';
+
+            btn.innerText = 'กำลังบันทึก...';
+            btn.disabled = true;
+
+            const payload = {
+                user_id: userId,
+                role: document.getElementById('role').value,
+                code: document.getElementById('code').value,
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                major_or_dept: document.getElementById('major_or_dept').value,
+                email: document.getElementById('email').value,
+                username: document.getElementById('username').value,
+                status: document.getElementById('account_status').value,
+                year: document.getElementById('role').value === 'student' ? document.getElementById('year').value : null
+            };
+
+            if (!isEdit) {
+                payload.password = document.getElementById('password').value;
+            }
+
+            const endpoint = isEdit ? 'api/update_user.php' : 'api/add_user.php';
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert(isEdit ? 'แก้ไขข้อมูลสำเร็จ!' : 'บันทึกข้อมูลเรียบร้อยแล้ว!');
+                    closeModal();
+                    fetchData();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.error);
+                }
+            } catch (err) {
+                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+            } finally {
+                btn.innerText = 'บันทึกข้อมูล';
+                btn.disabled = false;
+            }
+        }
+
+        function exportToExcel() {
+            const url = `api/export_excel.php?type=${currentTab}`;
+            window.location.href = url;
+        }
+
+        function switchMainView(view) {
+            const userView = document.getElementById('view-users');
+            const reportView = document.getElementById('view-reports');
+            const sideUsers = document.getElementById('side-users');
+            const sideReports = document.getElementById('side-reports');
+
+            if (view === 'users') {
+                userView.style.display = 'block';
+                reportView.style.display = 'none';
+                sideUsers.classList.add('active');
+                sideReports.classList.remove('active');
+                fetchData(); // Load user management data
+            } else {
+                userView.style.display = 'none';
+                reportView.style.display = 'block';
+                sideUsers.classList.remove('active');
+                sideReports.classList.add('active');
+                fetchRequests(); // Load internship requests data
+            }
+        }
+
+        let allRequests = [];
+
+        async function fetchRequests() {
+            const tableBody = document.getElementById('report-table-body');
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">กำลังโหลดรายงาน...</td></tr>';
+
+            try {
+                const res = await fetch('api/get_internship_requests.php');
+                const data = await res.json();
+                
+                if (data.success) {
+                    allRequests = data.requests || [];
+                    renderRequestsTable(allRequests);
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${data.error}</td></tr>`;
+                }
+            } catch (e) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการเชื่อมต่อ</td></tr>';
+            }
+        }
+
+        function renderRequestsTable(items) {
+            const tableBody = document.getElementById('report-table-body');
+            tableBody.innerHTML = '';
+
+            if (items.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">ไม่พบข้อมูลความจำนงขอฝึกงาน</td></tr>';
+                return;
+            }
+
+            items.forEach((item) => {
+                const row = document.createElement('tr');
+                const statusVal = item.status || 'pending';
+                
+                // Color mapping for statuses
+                const colors = {
+                    'pending': '#666',
+                    'advisor_approved': '#1976d2',
+                    'letter_issued': '#f57c00',
+                    'completed': '#2e7d32',
+                    'cancelled': '#d32f2f'
+                };
+
+                const advisorBadge = (statusVal === 'pending') 
+                    ? `<span style="background:#fff3e0; color:#ef6c00; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:600;"><i class="fas fa-clock"></i> รออาจารย์</span>`
+                    : `<span style="background:#e8f5e9; color:#2e7d32; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:600;"><i class="fas fa-check-circle"></i> อาจารย์อนุมัติแล้ว</span>`;
+
+                row.innerHTML = `
+                    <td>${item.student_code}</td>
+                    <td>
+                        <div style="font-weight:600;">${item.first_name} ${item.last_name}</div>
+                        <div style="font-size:0.75rem; color:#888;">${item.major}</div>
+                        <div style="margin-top:5px;">${advisorBadge}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600;">${item.company_name}</div>
+                        <div style="font-size:0.8rem; color:#666;">${item.position}</div>
+                    </td>
+                    <td>
+                        <div style="font-size:0.8rem;">${item.start_date} ถึง</div>
+                        <div style="font-size:0.8rem;">${item.end_date}</div>
+                    </td>
+                    <td>
+                        <select onchange="updateRequestStatus(${item.id}, this.value)" style="border-left: 4px solid ${colors[statusVal] || '#ddd'}; padding: 5px; font-size: 0.85rem; width:100%;">
+                            <option value="pending" ${statusVal === 'pending' ? 'selected' : ''}>1: รับเรื่องเข้าระบบ</option>
+                            <option value="advisor_approved" ${statusVal === 'advisor_approved' ? 'selected' : ''}>2: อาจารย์ที่ปรึกษาอนุมัติ</option>
+                            <option value="letter_issued" ${statusVal === 'letter_issued' ? 'selected' : ''}>3: ออกใบส่งตัว</option>
+                            <option value="completed" ${statusVal === 'completed' ? 'selected' : ''}>4: ฝึกงานเสร็จสิ้น</option>
+                            <option value="cancelled" ${statusVal === 'cancelled' ? 'selected' : ''}>5: ยกเลิก</option>
+                        </select>
+                    </td>
+                    <td style="text-align:center;">
+                        <button class="btn-icon btn-edit" title="ดูรายละเอียด" onclick="viewRequestDetails(${item.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function searchRequests() {
+            const query = document.getElementById('request-search').value.toLowerCase();
+            const filtered = allRequests.filter(item => {
+                const fullName = (item.first_name + ' ' + item.last_name).toLowerCase();
+                return fullName.includes(query) || 
+                       item.student_code.toLowerCase().includes(query) || 
+                       item.company_name.toLowerCase().includes(query);
+            });
+            renderRequestsTable(filtered);
+        }
+
+        function viewRequestDetails(id) {
+            console.log("Viewing details for ID:", id);
+            const req = allRequests.find(r => Number(r.id) === Number(id));
+            if (!req) {
+                console.error("Request not found:", id);
+                return;
+            }
+
+            const content = document.getElementById('request-detail-content');
+            const statusVal = (req.status || 'pending').toLowerCase();
+            
+            const statusLabels = {
+                'pending': '1: รับเรื่องเข้าระบบ',
+                'advisor_approved': '2: อาจารย์ที่ปรึกษาอนุมัติ',
+                'letter_issued': '3: ออกใบส่งตัว',
+                'completed': '4: ฝึกงานเสร็จสิ้น',
+                'cancelled': '5: ยกเลิก'
+            };
+            const statusColor = {
+                'pending': '#f57c00',
+                'advisor_approved': '#1976d2',
+                'letter_issued': '#7b1fa2',
+                'completed': '#2e7d32',
+                'cancelled': '#d32f2f'
+            }[statusVal] || '#666';
+
+            try {
+                content.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; line-height: 2;">
+                        <div>
+                            <p><strong>ชื่อ-นามสกุล:</strong> ${req.first_name || '-'} ${req.last_name || '-'}</p>
+                            <p><strong>รหัสนิสิต:</strong> ${req.student_code || '-'}</p>
+                            <p><strong>สาขาวิชา:</strong> ${req.major || '-'}</p>
+                        </div>
+                        <div>
+                            <p><strong>ประเภท:</strong> นิสิตฝึกงาน</p>
+                            <p><strong>สถานะปัจจุบัน:</strong> <span style="color: ${statusColor}; font-weight:bold;">${statusLabels[statusVal] || statusVal}</span></p>
+                        </div>
+                    </div>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
+                    <h4 style="color: var(--swu-orange); margin-bottom: 10px;">ข้อมูลการฝึกงาน</h4>
+                    <div style="line-height: 2;">
+                        <p><strong>สถานประกอบการ:</strong> ${req.company_name || '-'}</p>
+                        <p><strong>ตำแหน่งงาน:</strong> ${req.position || '-'}</p>
+                        <p><strong>ระยะเวลา:</strong> ${req.start_date || '-'} ถึง ${req.end_date || '-'}</p>
+                    </div>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
+                    <h4 style="color: #2e7d32; margin-bottom: 10px;">ผลการนิเทศน์ (โดยอาจารย์)</h4>
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 4px solid #2e7d32; min-height: 60px;">
+                        ${req.supervision_note ? String(req.supervision_note).replace(/\n/g, '<br>') : '<span style="color: #999; font-style: italic;">ยังไม่มีการบันทึกผลการนิเทศน์</span>'}
+                    </div>
+                    <div style="font-size: 0.75rem; color: #999; margin-top: 15px; text-align: right;">
+                        วันที่ยื่นคำขอ: ${req.created_at ? new Date(req.created_at).toLocaleString('th-TH') : '-'}
+                    </div>
+                `;
+
+                document.getElementById('request-detail-overlay').style.display = 'flex';
+            } catch (err) {
+                console.error("Error rendering modal:", err);
+                alert("ไม่สามารถแสดงรายละเอียดได้เนื่องจากเกิดข้อผิดพลาดในการประมวลผลข้อมูล");
+            }
+        }
+
+        async function updateRequestStatus(id, newStatus) {
+            try {
+                const res = await fetch('api/update_request_status.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: id, status: newStatus })
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    // Update local data cache for "Real-time" effect in modals
+                    const reqIndex = allRequests.findIndex(r => Number(r.id) === Number(id));
+                    if (reqIndex !== -1) {
+                        allRequests[reqIndex].status = newStatus;
+                    }
+                    
+                    // Re-render the table to update border colors
+                    renderRequestsTable(allRequests);
+                    
+                    // If the modal is currently open for THIS request, update it too
+                    const modal = document.getElementById('request-detail-overlay');
+                    if (modal.style.display === 'flex') {
+                        const currentModalId = Number(modal.getAttribute('data-current-id')); // Optional: track which ID is open
+                        // For simplicity, just re-running the detail view logic if the ID matches
+                        // (Assuming we might want to refresh the modal content)
+                        viewRequestDetails(id);
+                    }
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.error);
+                }
+            } catch (e) {
+                alert('ไม่สามารถอัปเดตสถานะได้');
+            }
+        }
+
+        function closeRequestModal() {
+            document.getElementById('request-detail-overlay').style.display = 'none';
+        }
+
+        function exportRequestsToExcel() {
+            // Re-using the logic but specifying type
+            window.location.href = `api/export_excel.php?type=requests`;
+        }
+
+        function logout() {
+            window.location.href = 'api/logout.php';
+        }
+
+        // Removed auto-calling fetchData() here, now handled by checkAuth() success
+    </script>
+</body>
+</html>

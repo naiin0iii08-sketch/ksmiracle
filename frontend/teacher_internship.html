@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการขอฝึกงานสำหรับอาจารย์ | ระบบจัดการฝึกงาน มศว</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --swu-orange: #d93d25;
+            --swu-gray: #6b6b6b;
+            --swu-dark-gray: #4a4a4a;
+            --swu-light-gray: #f5f5f5;
+            --white: #ffffff;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Prompt', sans-serif; }
+        body { background-color: var(--swu-light-gray); color: var(--swu-dark-gray); }
+
+        .header {
+            background-color: var(--white);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .container { padding: 40px; max-width: 1200px; margin: 0 auto; }
+        
+        .section-title { margin-bottom: 25px; border-left: 5px solid var(--swu-orange); padding-left: 15px; }
+
+        .table-container { background: var(--white); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #fcfcfc; padding: 15px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--swu-light-gray); }
+        td { padding: 15px; border-bottom: 1px solid var(--swu-light-gray); font-size: 0.9rem; }
+
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-advisor_approved { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #dcfce7; color: #166534; }
+
+        .btn-action {
+            border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            display: flex; align-items: center; gap: 5px; transition: all 0.3s;
+        }
+        .btn-view { background: #e3f2fd; color: #1976d2; }
+        .btn-approve { background: #e8f5e9; color: #2e7d32; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: var(--white); width: 100%; max-width: 600px; border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        
+        textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; margin-top: 10px; resize: vertical; min-height: 100px; }
+        
+        .btn-save { background: var(--swu-orange); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 15px; width: 100%; }
+        .btn-close { background: #eee; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; width: 100%; }
+
+        .btn-back { display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--swu-gray); font-weight:600; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
+        </a>
+        <h2>ระบบจัดการสำหรับอาจารย์</h2>
+        <div style="width: 100px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section-title">
+            <h3>รายการนิสิตขอฝึกงาน/สหกิจศึกษา</h3>
+            <p style="color: #888; font-size: 0.9rem;">ตรวจสอบคำขอและบันทึกผลการนิเทศน์</p>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">นิสิต/ชั้นปี</th>
+                        <th style="width: 30%;">สถานประกอบการ/ตำแหน่ง</th>
+                        <th style="width: 20%;">สถานะ</th>
+                        <th style="text-align:center;">การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="request-list">
+                    <tr><td colspan="4" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal รายละเอียดและนิเทศน์ -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h3 id="modal-title">ข้อมูลนิสิต</h3>
+            <div id="modal-details" style="margin-top: 15px; font-size: 0.9rem; line-height: 1.8;">
+                <!-- Content -->
+            </div>
+            
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+            
+            <label style="font-weight: 700; color: var(--swu-orange);">บันทึกผลการนิเทศน์สหกิจศึกษา/ฝึกประสบการณ์</label>
+            <textarea id="supervision_note" placeholder="บันทึกรายละเอียดการตรวจประเมิน หรือคอมเมนต์สถานประกอบการ..."></textarea>
+            
+            <div id="approve-area" style="display: none; margin-top: 15px;">
+                <button class="btn-save" style="background-color: #2e7d32;" onclick="approveRequest()">
+                    <i class="fas fa-check-circle"></i> อนุมัติเบื้องต้น (อาจารย์ที่ปรึกษา)
+                </button>
+            </div>
+
+            <button class="btn-save" onclick="saveNote()">บันทึกข้อมูลการนิเทศน์</button>
+            <button class="btn-close" onclick="closeModal()">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let allRequests = [];
+        let currentRequestId = null;
+
+        async function fetchRequests() {
+            try {
+                const res = await fetch('api/get_internship_requests.php');
+                const data = await res.json();
+                if (data.success) {
+                    allRequests = data.requests;
+                    renderTable();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function renderTable() {
+            const list = document.getElementById('request-list');
+            list.innerHTML = '';
+            
+            const statusLabels = {
+                'pending': 'รับเรื่องเข้าระบบ',
+                'advisor_approved': 'อาจารย์ที่ปรึกษาอนุมัติ',
+                'letter_issued': 'ออกใบส่งตัว',
+                'completed': 'ฝึกงานเสร็จสิ้น',
+                'cancelled': 'ยกเลิก'
+            };
+
+            allRequests.forEach(req => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight:600;">${req.first_name} ${req.last_name}</div>
+                        <div style="font-size:0.75rem; color:#888;">รหัส: ${req.student_code} | ชั้นปีที่ ${req.year || '-'}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600;">${req.company_name}</div>
+                        <div style="font-size:0.8rem; color:#666;">${req.position}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${req.status}">${statusLabels[req.status] || req.status}</span>
+                    </td>
+                    <td style="text-align:center;">
+                        <button class="btn-action btn-view" onclick="openModal(${req.id})" style="display:inline-flex;">
+                            <i class="fas fa-edit"></i> ดูรายละเอียด/นิเทศน์
+                        </button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            });
+        }
+
+        function openModal(id) {
+            currentRequestId = id;
+            const req = allRequests.find(r => r.id === id);
+            if (!req) return;
+
+            document.getElementById('modal-title').innerText = `นิเทศน์: ${req.first_name} ${req.last_name}`;
+            document.getElementById('modal-details').innerHTML = `
+                <p><strong>ชื่อ-นามสกุล:</strong> ${req.first_name} ${req.last_name} (ปี ${req.year || '-'})</p>
+                <p><strong>รหัสนิสิต:</strong> ${req.student_code}</p>
+                <p><strong>สถานประกอบการ:</strong> ${req.company_name}</p>
+                <p><strong>ตำแหน่ง:</strong> ${req.position}</p>
+                <p><strong>ระยะเวลา:</strong> ${req.start_date} ถึง ${req.end_date}</p>
+            `;
+            document.getElementById('supervision_note').value = req.supervision_note || '';
+            
+            // Show approve button only if status is pending
+            const approveArea = document.getElementById('approve-area');
+            approveArea.style.display = (req.status === 'pending') ? 'block' : 'none';
+
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+        async function approveRequest() {
+            if (!confirm('ยืนยันการอนุมัติเบื้องต้นในฐานะอาจารย์ที่ปรึกษา?')) return;
+            
+            try {
+                const res = await fetch('api/update_request_status.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: currentRequestId, status: 'advisor_approved' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('สำเร็จ', 'อนุมัติเรียบร้อยแล้ว', 'success');
+                    fetchRequests();
+                    closeModal();
+                }
+            } catch (e) { Swal.fire('Error', 'ไม่สามารถบันทึกได้', 'error'); }
+        }
+
+        async function saveNote() {
+            const note = document.getElementById('supervision_note').value;
+            try {
+                const res = await fetch('api/save_supervision_note.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: currentRequestId, note: note })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ',
+                        text: 'ผลการนิเทศน์ถูกจัดเก็บเรียบร้อยแล้ว',
+                        timer: 1500
+                    });
+                    fetchRequests();
+                }
+            } catch (e) { Swal.fire('Error', 'ไม่สามารถเชื่อมต่อได้', 'error'); }
+        }
+
+        // Security check
+        async function checkRole() {
+            const res = await fetch('api/check_session.php');
+            const data = await res.json();
+            if (!data.authorized || (data.role !== 'teacher' && data.role !== 'admin')) {
+                window.location.href = 'index.html';
+            } else {
+                fetchRequests();
+            }
+        }
+
+        window.onload = checkRole;
+    </script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก | ระบบจัดการฝึกงาน มศว</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --swu-orange: #d93d25;
+            --swu-orange-hover: #b82d18;
+            --swu-gray: #6b6b6b;
+            --swu-dark-gray: #4a4a4a;
+            --swu-light-gray: #f5f5f5;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--swu-light-gray);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            padding: 20px;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 600px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .register-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-img {
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: var(--swu-dark-gray);
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--swu-gray);
+            font-size: 0.9rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--swu-gray);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--swu-orange);
+            box-shadow: 0 0 0 4px rgba(217, 61, 37, 0.1);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--swu-orange);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .register-btn:hover {
+            background-color: var(--swu-orange-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(217, 61, 37, 0.3);
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #fecaca;
+        }
+
+        .success-message {
+            background-color: #dcfce7;
+            color: #16a34a;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #bbf7d0;
+            text-align: center;
+        }
+
+        .footer-links {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a {
+            color: var(--swu-orange);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <div class="register-card">
+            <div class="header">
+                <img src="swu-logo.png" alt="SWU Logo" class="logo-img">
+                <h2>ลงทะเบียนเข้าใช้งาน</h2>
+                <p class="subtitle">ระบบจัดการฝึกงานและสหกิจศึกษา</p>
+            </div>
+
+            <div id="error-msg" class="error-message"></div>
+            <div id="success-msg" class="success-message"></div>
+
+            <form id="register-form" onsubmit="handleRegistration(event)">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>ประเภทผู้ใช้</label>
+                        <select id="role" onchange="toggleFields()" required>
+                            <option value="student">นิสิต (Student)</option>
+                            <option value="teacher">อาจารย์ (Teacher)</option>
+                        </select>
+                    </div>
+
+                    <!-- ฟิลด์รหัส (11 หลักสำหรับนิสิต) -->
+                    <div class="form-group">
+                        <label id="label-code">รหัสนิสิต (11 หลัก)</label>
+                        <input type="text" id="code" maxlength="11" placeholder="เช่น 64101010123" required>
+                    </div>
+
+                    <!-- ฟิลด์คณะ/สาขา (เปลี่ยนเป็นตัวเลือก) -->
+                    <div class="form-group">
+                        <label id="label-major">คณะ/วิทยาลัย</label>
+                        <select id="major_or_dept" required>
+                            <option value="">-- เลือกคณะ/วิทยาลัย --</option>
+                            <option value="คณะมนุษยศาสตร์">คณะมนุษยศาสตร์</option>
+                            <option value="คณะศึกษาศาสตร์">คณะศึกษาศาสตร์</option>
+                            <option value="คณะวิศวกรรมศาสตร์">คณะวิศวกรรมศาสตร์</option>
+                            <option value="คณะวิทยาศาสตร์">คณะวิทยาศาสตร์</option>
+                            <option value="คณะศิลปกรรมศาสตร์">คณะศิลปกรรมศาสตร์</option>
+                            <option value="วิทยาลัยนวัตกรรมสื่อสารสังคม">วิทยาลัยนวัตกรรมสื่อสารสังคม</option>
+                            <option value="คณะพยาบาลศาสตร์">คณะพยาบาลศาสตร์</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+
+                    <!-- ฟิลด์ใหม่: เพศ และ ชั้นปี (เฉพาะนิสิต) -->
+                    <div class="form-group" id="group-gender">
+                        <label>เพศ</label>
+                        <select id="gender">
+                            <option value="ชาย">ชาย</option>
+                            <option value="หญิง">หญิง</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="group-year">
+                        <label>ชั้นปี</label>
+                        <select id="year">
+                            <option value="1">ชั้นปี 1</option>
+                            <option value="2">ชั้นปี 2</option>
+                            <option value="3">ชั้นปี 3</option>
+                            <option value="4">ชั้นปี 4</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ชื่อ (First Name)</label>
+                        <input type="text" id="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>นามสกุล (Last Name)</label>
+                        <input type="text" id="last_name" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>อีเมล (Email)</label>
+                        <input type="email" id="email" placeholder="example@swu.ac.th" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ชื่อผู้ใช้งาน (Username)</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>รหัสผ่าน (ใช้เลขบัตรประชาชน 13 หลัก)</label>
+                        <input type="password" id="password" maxlength="13" placeholder="ระบุเลขบัตรประชาชน 13 หลัก" required>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="register-btn">ลงทะเบียน</button>
+            </form>
+
+            <div class="footer-links">
+                มีบัญชีอยู่แล้ว? <a href="login.html">เข้าสู่ระบบ</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFields() {
+            const role = document.getElementById('role').value;
+            const labelCode = document.getElementById('label-code');
+            const codeInput = document.getElementById('code');
+            
+            const groupGender = document.getElementById('group-gender');
+            const groupYear = document.getElementById('group-year');
+
+            if (role === 'student') {
+                labelCode.innerText = 'รหัสนิสิต (11 หลัก)';
+                codeInput.placeholder = 'เช่น 64101010123';
+                codeInput.maxLength = 11;
+                groupGender.style.display = 'block';
+                groupYear.style.display = 'block';
+            } else {
+                labelCode.innerText = 'รหัสบุคลากร';
+                codeInput.placeholder = 'ระบุรหัสประจำตัว';
+                codeInput.removeAttribute('maxLength');
+                groupGender.style.display = 'none';
+                groupYear.style.display = 'none';
+            }
+        }
+        
+        // Initial call
+        toggleFields();
+
+        async function handleRegistration(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const errorDiv = document.getElementById('error-msg');
+            const successDiv = document.getElementById('success-msg');
+            
+            const role = document.getElementById('role').value;
+            const code = document.getElementById('code').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Strict Validation
+            if (role === 'student' && code.length !== 11) {
+                errorDiv.innerText = 'ข้อมูลไม่ถูกต้อง: รหัสนิสิตต้องมี 11 หลัก';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (password.length !== 13) {
+                errorDiv.innerText = 'ข้อมูลไม่ถูกต้อง: รหัสผ่านต้องเป็นเลขบัตรประชาชน 13 หลัก';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = 'กำลังประมวลผล...';
+
+            const payload = {
+                role: role,
+                code: code,
+                major_or_dept: document.getElementById('major_or_dept').value,
+                gender: document.getElementById('gender').value,
+                year: document.getElementById('year').value,
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                email: document.getElementById('email').value,
+                username: document.getElementById('username').value,
+                password: password
+            };
+
+            try {
+                const res = await fetch('api/register.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    successDiv.innerText = data.message;
+                    successDiv.style.display = 'block';
+                    document.getElementById('register-form').reset();
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
+                } else {
+                    errorDiv.innerText = data.error;
+                    errorDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerText = 'ลงทะเบียน';
+                }
+            } catch (err) {
+                errorDiv.innerText = 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
+                errorDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = 'ลงทะเบียน';
+            }
+        }
+    </script>
+</body>
+</html>

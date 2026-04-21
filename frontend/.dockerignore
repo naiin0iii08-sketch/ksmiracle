@@ -1,0 +1,7 @@
+.git
+scratch/
+api/test_session.php
+api/fix_admin.php
+database.sql
+.DS_Store
+*.log

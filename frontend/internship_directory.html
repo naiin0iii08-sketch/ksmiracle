@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายชื่อนิสิตฝึกงานปัจจุบัน | มหาวิทยาลัยศรีนครินทรวิโรฒ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --swu-orange: #d93d25;
+            --swu-gray: #6b6b6b;
+            --swu-dark-gray: #4a4a4a;
+            --swu-light-gray: #f5f5f5;
+            --white: #ffffff;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Prompt', sans-serif; }
+        body { background-color: var(--swu-light-gray); color: var(--swu-dark-gray); line-height: 1.6; }
+
+        .header {
+            background-color: var(--white);
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container { padding: 40px 5%; max-width: 1200px; margin: 0 auto; }
+        
+        .title-section { margin-bottom: 30px; border-left: 5px solid var(--swu-orange); padding-left: 15px; }
+        
+        .search-container { margin-bottom: 20px; }
+        #search-input { width: 100%; padding: 12px 20px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+
+        .table-container { background: var(--white); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #fcfcfc; padding: 18px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--swu-light-gray); text-transform: uppercase; font-size: 0.85rem; }
+        td { padding: 18px; border-bottom: 1px solid var(--swu-light-gray); font-size: 0.95rem; }
+
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-advisor_approved { background: #dbeafe; color: #1e40af; }
+        .status-letter_issued { background: #f3e8ff; color: #6b21a8; }
+        .status-completed { background: #dcfce7; color: #166534; }
+
+        .btn-back { display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--swu-gray); font-weight:600; font-size: 0.9rem; }
+        
+        .year-btn {
+            background: #eee;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--swu-gray);
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .year-btn.active {
+            background: var(--swu-orange);
+            color: white;
+            box-shadow: 0 4px 10px rgba(217, 61, 37, 0.3);
+        }
+
+        .year-btn:hover:not(.active) {
+            background: #e0e0e0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            th:nth-child(3), td:nth-child(3) { display: none; }
+            .container { padding: 20px 3%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
+        </a>
+        <h3 style="color: var(--swu-orange);">ข้อมูลนิสิตปัจจุบัน</h3>
+        <div></div>
+    </header>
+
+    <main class="container">
+        <div class="title-section">
+            <h1>รายชื่อนิสิตในระบบ</h1>
+            <p style="color: #666;">ข้อมูลรายชื่อและคณะสาขาวิชาของนิสิตแยกตามปีการศึกษา</p>
+        </div>
+
+        <div class="search-container">
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px;">
+                <button class="year-btn active" onclick="filterByYear('all')">ทั้งหมด</button>
+                <button class="year-btn" onclick="filterByYear('1')">ปี 1</button>
+                <button class="year-btn" onclick="filterByYear('2')">ปี 2</button>
+                <button class="year-btn" onclick="filterByYear('3')">ปี 3</button>
+                <button class="year-btn" onclick="filterByYear('4')">ปี 4</button>
+            </div>
+            <input type="text" id="search-input" placeholder="ค้นหาชื่อนิสิต หรือคณะสาขาวิชา..." onkeyup="filterTable()">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">ชื่อ-นามสกุล</th>
+                        <th style="width: 20%; text-align:center;">ชั้นปี</th>
+                        <th style="width: 40%;">คณะ/สาขาวิชา</th>
+                    </tr>
+                </thead>
+                <tbody id="directory-body">
+                    <tr><td colspan="3" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        let allData = [];
+        let currentYearFilter = 'all';
+
+        async function fetchDirectory() {
+            try {
+                const res = await fetch('api/get_public_internships.php');
+                const result = await res.json();
+                if (result.success) {
+                    allData = result.data;
+                    filterTable();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function filterByYear(year) {
+            currentYearFilter = year;
+            
+            // UI Update
+            document.querySelectorAll('.year-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((year === 'all' && btn.innerText === 'ทั้งหมด') || btn.innerText === `ปี ${year}`) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            filterTable();
+        }
+
+        function renderTable(data) {
+            const body = document.getElementById('directory-body');
+            body.innerHTML = '';
+
+            if (data.length === 0) {
+                body.innerHTML = '<tr><td colspan="3" style="text-align:center;">ไม่พบข้อมูลนิสิตในหมวดหมู่นี้</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.first_name} ${item.last_name}</strong></td>
+                    <td style="text-align:center;">ชั้นปีที่ ${item.year || '-'}</td>
+                    <td>${item.major || '-'}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function filterTable() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            
+            const filtered = allData.filter(item => {
+                const matchesYear = currentYearFilter === 'all' || String(item.year) === currentYearFilter;
+                const matchesSearch = (item.first_name + ' ' + item.last_name).toLowerCase().includes(q) ||
+                                     (item.major || '').toLowerCase().includes(q);
+                return matchesYear && matchesSearch;
+            });
+
+            renderTable(filtered);
+        }
+
+        window.onload = fetchDirectory;
+    </script>
+</body>
+</html>

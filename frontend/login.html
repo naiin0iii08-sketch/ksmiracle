@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ | ระบบจัดการฝึกงาน มศว</title>
+    <script>
+        // ถ้าเข้าผ่านลิงก์ login.html ตรงๆ โดยไม่ได้มาจากหน้าหลัก ให้ดีดกลับไปหน้าหลักก่อนหนึ่งครั้ง
+        if (!document.referrer.includes(window.location.hostname) && !window.location.search.includes('manual=true')) {
+            window.location.replace('index.html');
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --swu-orange: #d93d25;
+            --swu-orange-hover: #b82d18;
+            --swu-gray: #6b6b6b;
+            --swu-dark-gray: #4a4a4a;
+            --swu-light-gray: #f5f5f5;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--swu-light-gray);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .login-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-img {
+            height: 70px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: var(--swu-dark-gray);
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--swu-gray);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--swu-gray);
+            transition: color 0.3s ease;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1.5px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--swu-orange);
+            box-shadow: 0 0 0 4px rgba(217, 61, 37, 0.1);
+        }
+
+        .form-group input:focus + i {
+            color: var(--swu-orange);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--swu-orange);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: var(--swu-orange-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(217, 61, 37, 0.3);
+        }
+
+        /* Error Label */
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #fecaca;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .links {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .links a {
+            color: var(--swu-gray);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            color: var(--swu-orange);
+        }
+
+        .back-home {
+            margin-top: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--swu-dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-home:hover {
+            color: var(--swu-orange);
+            transform: translateX(-5px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-card">
+            <img src="swu-logo.png" alt="SWU Logo" class="logo-img">
+            <h2 data-th="เข้าสู่ระบบ" data-en="Login">เข้าสู่ระบบ</h2>
+            <p class="subtitle" data-th="ระบบจัดการฝึกงานและสหกิจศึกษา" data-en="Internship & Cooperative Education Management System">ระบบจัดการฝึกงานและสหกิจศึกษา</p>
+            
+            <div id="login-error" class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="error-text"></span>
+            </div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <input type="text" placeholder="ชื่อผู้ใช้งาน" data-ph-th="ชื่อผู้ใช้งาน" data-ph-en="Username" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="รหัสผ่าน" data-ph-th="รหัสผ่าน" data-ph-en="Password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                <button type="submit" class="login-btn" data-th="เข้าสู่ระบบ" data-en="Login">เข้าสู่ระบบ</button>
+            </form>
+
+            <div class="links">
+                <a href="#" onclick="openResetModal()" data-th="ลืมรหัสผ่าน?" data-en="Forgot Password?">ลืมรหัสผ่าน?</a>
+                <a href="register.html" style="margin-top: 5px; color: var(--swu-orange); font-weight: 600;">สมัครสมาชิก (Register)</a>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="index.html" class="back-home">
+                <i class="fas fa-arrow-left"></i> 
+                <span data-th="กลับสู่หน้าหลัก" data-en="Back to Home">กลับสู่หน้าหลัก</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal Reset Password -->
+    <div id="reset-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center; padding: 20px;">
+        <div style="background:white; padding:30px; border-radius:15px; width:100%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="margin-bottom:15px; font-size:1.2rem;">ตั้งค่ารหัสผ่านใหม่</h3>
+            <p style="font-size:0.85rem; color:#666; margin-bottom:20px;">กรอกข้อมูลเพื่อยืนยันตัวตนและตั้งรหัสผ่านใหม่</p>
+            <form onsubmit="handleReset(event)">
+                <div class="form-group">
+                    <input type="text" id="reset-username" placeholder="ชื่อผู้ใช้งาน (Username)" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="reset-code" placeholder="รหัสนิสิต / รหัสบุคลากร" required>
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reset-new-password" placeholder="รหัสผ่านใหม่" required>
+                    <i class="fas fa-key"></i>
+                </div>
+                <button type="submit" class="login-btn" id="reset-btn">ยืนยันการเปลี่ยนรหัสผ่าน</button>
+                <button type="button" class="login-btn" style="background:#eee; color:#666; margin-top:10px;" onclick="closeResetModal()">ยกเลิก</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'th';
+
+        // Check if already logged in
+        async function checkExistingSession() {
+            try {
+                const res = await fetch('api/check_session.php');
+                const data = await res.json();
+                if (data.authorized) {
+                    window.location.href = data.role === 'admin' ? 'user_management.html' : 'index.html';
+                }
+            } catch (e) {}
+        }
+        checkExistingSession();
+
+        function updateLang() {
+            document.querySelectorAll('[data-th]').forEach(el => {
+                const text = currentLang === 'th' ? el.getAttribute('data-th') : el.getAttribute('data-en');
+                if (el.tagName === 'INPUT') {
+                    const phTh = el.getAttribute('data-ph-th');
+                    const phEn = el.getAttribute('data-ph-en');
+                    if (phTh && phEn) {
+                        el.placeholder = currentLang === 'th' ? phTh : phEn;
+                    }
+                } else {
+                    if (text) el.innerText = text;
+                }
+            });
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('.login-btn');
+            const errorDiv = document.getElementById('login-error');
+            const errorText = document.getElementById('error-text');
+            const username = e.target.querySelector('input[type="text"]').value;
+            const password = e.target.querySelector('input[type="password"]').value;
+
+            errorDiv.style.display = 'none';
+            btn.innerText = currentLang === 'th' ? 'กำลังตรวจสอบ...' : 'Verifying...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('api/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    // Success remains the same, but we could use a better visual if we wanted
+                    window.location.href = result.user.role === 'admin' ? 'user_management.html' : 'index.html';
+                } else {
+                    errorText.innerText = currentLang === 'th' ? 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือบัญชีถูกระงับ' : 'Invalid username/password or account disabled';
+                    errorDiv.style.display = 'flex';
+                }
+            } catch (err) {
+                errorText.innerText = currentLang === 'th' ? 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้' : 'Connection failed';
+                errorDiv.style.display = 'flex';
+            } finally {
+                btn.innerText = currentLang === 'th' ? 'เข้าสู่ระบบ' : 'Login';
+                btn.disabled = false;
+            }
+        }
+
+        function openResetModal() { document.getElementById('reset-modal').style.display = 'flex'; }
+        function closeResetModal() { document.getElementById('reset-modal').style.display = 'none'; }
+
+        async function handleReset(e) {
+            e.preventDefault();
+            const btn = document.getElementById('reset-btn');
+            const username = document.getElementById('reset-username').value;
+            const id_code = document.getElementById('reset-code').value;
+            const new_password = document.getElementById('reset-new-password').value;
+
+            btn.innerText = 'กำลังดำเนินการ...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('api/reset_password.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, id_code, new_password })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert('เปลี่ยนรหัสผ่านสำเร็จ! กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่');
+                    closeResetModal();
+                } else {
+                    alert('ข้อผิดพลาด: ' + result.error);
+                }
+            } catch (err) {
+                alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+            } finally {
+                btn.innerText = 'ยืนยันการเปลี่ยนรหัสผ่าน';
+                btn.disabled = false;
+            }
+        }
+
+        window.onload = updateLang;
+    </script>
+</body>
+</html>
