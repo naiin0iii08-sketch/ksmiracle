@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผู้จัดทำเว็บไซต์ | กลุ่มพาสเทล</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --pastel-pink: #ffd1dc;
+            --pastel-blue: #bfe6ff;
+            --pastel-purple: #e2d1f9;
+            --pastel-green: #d1f9e2;
+            --swu-orange: #d93d25;
+            --white: #ffffff;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Prompt', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-blue));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border: 5px solid var(--white);
+        }
+
+        .group-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ff8fab;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px var(--white);
+        }
+
+        .member-list {
+            list-style: none;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .member-item {
+            background: var(--white);
+            margin-bottom: 15px;
+            padding: 15px 25px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            transition: transform 0.3s;
+            border-left: 5px solid var(--pastel-purple);
+        }
+
+        .member-item:hover {
+            transform: translateX(10px);
+        }
+
+        .member-item i {
+            color: #ff8fab;
+        }
+
+        .member-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .btn-back {
+            margin-top: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--swu-orange);
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: var(--white);
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: var(--swu-orange);
+            color: white;
+        }
+
+        .decoration {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1 class="group-name">💖 กลุ่ม พาสเทล</h1>
+        
+        <ul class="member-list">
+            <li class="member-item">
+                <i class="fas fa-star"></i>
+                <span class="member-name">นางสาวณัฐนิชา สวนขวัญ 666 (ชาร์มมิ่ง)</span>
+            </li>
+            <li class="member-item" style="border-left-color: var(--pastel-blue);">
+                <i class="fas fa-heart"></i>
+                <span class="member-name">นางสาวนริศรา ดงประการ 670 (นาเดีย)</span>
+            </li>
+            <li class="member-item" style="border-left-color: var(--pastel-green);">
+                <i class="fas fa-sparkles"></i>
+                <span class="member-name">นางสาวเปมิกา ศรีณะพรหม 676 (มุก)</span>
+            </li>
+            <li class="member-item" style="border-left-color: var(--pastel-pink);">
+                <i class="fas fa-flower"></i>
+                <span class="member-name">นางสาวอรัญญา ทวีกุล 693 (เมจิ)</span>
+            </li>
+        </ul>
+
+        <br>
+        <a href="index.html" class="btn-back">
+            <i class="fas fa-home"></i> กลับหน้าหลัก
+        </a>
+    </div>
+
+</body>
+</html>
