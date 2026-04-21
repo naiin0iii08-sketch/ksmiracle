@@ -22,7 +22,7 @@ try {
         exit;
     }
 
-    $student_id = $student['id'];
+    $student_id = $student['student_id'];
 
     // 2. Fetch requests for this student
     $stmt = $pdo->prepare("SELECT * FROM internship_requests WHERE student_id = ? ORDER BY created_at DESC");

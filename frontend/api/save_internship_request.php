@@ -27,7 +27,7 @@ try {
         exit;
     }
     
-    $student_numeric_id = $student['id'];
+    $student_numeric_id = $student['student_id'];
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
     exit;
