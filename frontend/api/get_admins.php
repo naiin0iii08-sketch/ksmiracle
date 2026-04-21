@@ -16,7 +16,7 @@ try {
                         FROM users u 
                         JOIN admins a ON u.id = a.user_id 
                         WHERE u.role = 'admin'
-                        ORDER BY a.id ASC");
+                        ORDER BY a.admin_id ASC");
     
     $list = $stmt->fetchAll();
 
