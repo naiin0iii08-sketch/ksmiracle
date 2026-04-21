@@ -4,10 +4,5 @@ services:
     runtime: docker
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: ksmiracle-db
-          property: connectionString
+        sync: false # We will set this manually in Render dashboard from Neon
 
-databases:
-  - name: ksmiracle-db
-    plan: free

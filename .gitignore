@@ -1,0 +1,8 @@
+.metadata/
+General/
+bin/
+*.log
+.vscode/
+frontend/api/db_local.php
+.DS_Store
+Thumbs.db
