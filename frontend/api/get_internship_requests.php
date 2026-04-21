@@ -13,7 +13,7 @@ try {
     // Join with students table to get student names and details
     $sql = "SELECT r.*, s.first_name, s.last_name, s.major, s.student_code, s.year 
             FROM internship_requests r 
-            JOIN students s ON r.student_id = s.id 
+            JOIN students s ON r.student_id = s.student_id 
             ORDER BY r.created_at DESC";
     $stmt = $pdo->query($sql);
     $requests = $stmt->fetchAll();

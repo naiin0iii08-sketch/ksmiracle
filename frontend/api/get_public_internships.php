@@ -7,7 +7,7 @@ try {
     // Using a subquery to find the maximum ID (latest) per student_id
     $sql = "SELECT s.first_name, s.last_name, s.year, s.major, r.status, r.company_name
             FROM students s
-            JOIN internship_requests r ON s.id = r.student_id
+            JOIN internship_requests r ON s.student_id = r.student_id
             WHERE r.id IN (
                 SELECT MAX(id) 
                 FROM internship_requests 
