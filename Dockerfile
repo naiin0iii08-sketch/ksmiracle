@@ -10,8 +10,8 @@ RUN a2enmod rewrite
 # Set the working directory to Apache document root
 WORKDIR /var/www/html
 
-# Copy the application files to the container
-COPY . /var/www/html/
+# Copy the application files to the container from the frontend folder
+COPY frontend/ /var/www/html/
 
 # Expose port 80
 EXPOSE 80
