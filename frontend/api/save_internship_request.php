@@ -18,7 +18,7 @@ if (!$user_id) {
 
 // Get the numeric student_id from the students table
 try {
-    $stmt = $pdo->prepare("SELECT id FROM students WHERE user_id = ?");
+    $stmt = $pdo->prepare("SELECT student_id FROM students WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $student = $stmt->fetch();
     

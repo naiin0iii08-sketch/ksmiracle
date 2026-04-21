@@ -3,7 +3,7 @@ require_once 'db.php';
 
 try {
     // Get some students
-    $stmt = $pdo->query("SELECT id FROM students LIMIT 3");
+    $stmt = $pdo->query("SELECT student_id FROM students LIMIT 3");
     $students = $stmt->fetchAll();
 
     if (count($students) === 0) {
@@ -12,7 +12,7 @@ try {
 
     $data = [
         [
-            'student_id' => $students[0]['id'],
+            'student_id' => $students[0]['student_id'],
             'company_name' => 'บริษัท กสิกรไทย จำกัด (มหาชน)',
             'position' => 'Software Developer Trainee',
             'start_date' => '2026-06-01',
@@ -20,7 +20,7 @@ try {
             'status' => 'advisor_approved'
         ],
         [
-            'student_id' => count($students) > 1 ? $students[1]['id'] : $students[0]['id'],
+            'student_id' => count($students) > 1 ? $students[1]['student_id'] : $students[0]['student_id'],
             'company_name' => 'Garena Online (Thailand)',
             'position' => 'UX/UI Designer Intern',
             'start_date' => '2026-07-15',
@@ -28,7 +28,7 @@ try {
             'status' => 'pending'
         ],
         [
-            'student_id' => count($students) > 2 ? $students[2]['id'] : $students[0]['id'],
+            'student_id' => count($students) > 2 ? $students[2]['student_id'] : $students[0]['student_id'],
             'company_name' => 'Agoda Services Co., Ltd.',
             'position' => 'Data Analyst Intern',
             'start_date' => '2026-05-20',

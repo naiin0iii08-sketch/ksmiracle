@@ -13,7 +13,7 @@ $user_id = $_SESSION['user_id'];
 
 try {
     // 1. Get the numeric student_id first
-    $stmt = $pdo->prepare("SELECT id FROM students WHERE user_id = ?");
+    $stmt = $pdo->prepare("SELECT student_id FROM students WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $student = $stmt->fetch();
 
