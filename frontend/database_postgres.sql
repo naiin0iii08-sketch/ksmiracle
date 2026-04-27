@@ -1,6 +1,9 @@
 -- PostgreSQL Schema for Internship Management System
 
--- 1. Create Custom Types for Enums
+-- 1. Create Custom Types for Enums (Drop if exists to avoid errors)
+DROP TYPE IF EXISTS user_role CASCADE;
+DROP TYPE IF EXISTS account_status CASCADE;
+
 CREATE TYPE user_role AS ENUM ('student', 'teacher', 'admin');
 CREATE TYPE account_status AS ENUM ('active', 'inactive');
 
