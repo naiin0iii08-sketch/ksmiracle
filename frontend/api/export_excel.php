@@ -19,21 +19,31 @@ if ($type === 'student') {
     $query = "SELECT s.student_code, s.first_name, s.last_name, s.major, u.email 
               FROM students s 
               JOIN users u ON s.user_id = u.id 
-              ORDER BY s.student_id DESC";
+              ORDER BY u.id DESC";
 } elseif ($type === 'teacher') {
     $title = "รายชื่อคณาจารย์ (Teachers List)";
     $headers = ["รหัสบุคลากร", "ชื่อ", "นามสกุล", "ภาควิชา", "อีเมล"];
     $query = "SELECT t.staff_code, t.first_name, t.last_name, t.department, u.email 
               FROM teachers t 
               JOIN users u ON t.user_id = u.id 
-              ORDER BY t.teacher_id DESC";
+              ORDER BY u.id DESC";
 } elseif ($type === 'requests') {
     $title = "รายงานความจำนงขอฝึกงาน (Internship Requests Report)";
     $headers = ["รหัสนิสิต", "ชื่อ-นามสกุล", "สาขาวิชา", "สถานประกอบการ", "ตำแหน่ง", "ระยะเวลา", "สถานะ"];
-    $query = "SELECT s.student_code, CONCAT(s.first_name, ' ', s.last_name), s.major, r.company_name, r.position, CONCAT(r.start_date, ' ถึง ', r.end_date), r.status 
-              FROM internship_requests r 
-              JOIN students s ON r.student_id = s.student_id 
-              ORDER BY r.id DESC";
+    
+    // PRODUCTION: PostgreSQL (Render)
+    if ($db_url) {
+        $query = "SELECT s.student_code, (s.first_name || ' ' || s.last_name) as full_name, s.major, r.company_name, r.position, (r.start_date || ' ถึง ' || r.end_date) as duration, r.status 
+                  FROM internship_requests r 
+                  JOIN students s ON r.student_id = s.student_id 
+                  ORDER BY r.id DESC";
+    } else {
+        // LOCAL: MySQL (XAMPP)
+        $query = "SELECT s.student_code, CONCAT(s.first_name, ' ', s.last_name) as full_name, s.major, r.company_name, r.position, CONCAT(r.start_date, ' ถึง ', r.end_date) as duration, r.status 
+                  FROM internship_requests r 
+                  JOIN students s ON r.student_id = s.id 
+                  ORDER BY r.id DESC";
+    }
 } else {
     $title = "ประวัติการเข้าใช้งาน (Login Logs)";
     $headers = ["Username", "วันเวลา", "IP Address", "สถานะ"];
