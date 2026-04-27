@@ -8,7 +8,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS status_logs;
 DROP TABLE IF EXISTS internship_requests;
 DROP TABLE IF EXISTS students;
-DROP TABLE IF EXISTS staff;
+DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS users;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -36,8 +36,8 @@ CREATE TABLE students (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 3. Staff/Teachers table
-CREATE TABLE staff (
+-- 3. Teachers table
+CREATE TABLE teachers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     staff_code VARCHAR(20) NOT NULL UNIQUE,

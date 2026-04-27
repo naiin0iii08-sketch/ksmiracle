@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { display: none; }
+        body {
+            background-color: #ebedef;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scale-wrapper {
+            width: 1250px;
+            height: 860px;
+            transform: scale(0.70);
+            position: relative;
+        }
+
+        .wf-box {
+            width: 160px;
+            height: 200px;
+            background: white;
+            border: 1px solid #b0b5b9;
+            border-radius: 3px;
+            position: absolute;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.06);
+            z-index: 10;
+        }
+
+        .wf-header {
+            height: 20px;
+            background: #fff;
+            border-bottom: 1px solid #b0b5b9;
+            display: flex;
+            align-items: center;
+            padding: 0 6px;
+            font-size: 10px;
+            color: #555;
+            position: relative;
+        }
+        .wf-dots {
+            color: #aaa;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        .wf-title {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            left: 0;
+            top: 4px;
+            z-index: 0;
+            font-weight: 500;
+        }
+
+        .wf-body {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            height: 178px;
+            font-size: 8px;
+            color: #666;
+        }
+
+        .e-hero { height: 35px; border: 1px solid #b0b5b9; border-radius: 2px; background: #e3e7e9; display: flex; align-items:center; justify-content:center; text-align: center; font-size: 9px; font-weight: bold; color: #555;}
+        
+        .e-grid { display: flex; gap: 6px; justify-content: center; }
+        .e-sq { width: 35px; height: 35px; border: 1px solid #b0b5b9; border-radius: 2px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size: 7px; color: #555;}
+        .e-sq.green { background: #d7e8d5; border-color: #8cba8c; }
+        .e-sq.orange { background: #fbd6cb; border-color: #f18c6e; }
+        
+        .e-lines { display: flex; flex-direction: column; gap: 3px; }
+        .e-line { height: 3px; background: #cfd4d8; border-radius: 2px; }
+        .e-line-short { width: 60%; height: 3px; background: #cfd4d8; border-radius: 2px; }
+        
+        .e-form { height: 16px; border: 1px solid #b0b5b9; border-radius: 2px; padding: 0 4px; display: flex; align-items: center; color: #999; background: #fdfdfd;}
+        .e-btn { height: 16px; width: 60px; background: #f18c6e; border-radius: 2px; margin-left: auto; border: 1px solid #d87053; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold;}
+
+        .e-sidebar-layout { display: flex; gap: 6px; height: 100%; }
+        .e-sidebar { width: 35px; border: 1px solid #b0b5b9; background: #f6f8f9; border-radius: 2px; display: flex; flex-direction: column; gap: 4px; padding: 4px;}
+        .e-main { flex: 1; border: 1px solid #b0b5b9; border-radius: 2px; display: flex; flex-direction: column; gap: 4px; padding: 4px;}
+        
+        .e-table-row { height: 10px; background: #e3e7e9; border-radius: 1px; display: flex; align-items: center; padding: 0 4px; font-size: 6px; justify-content: space-between;}
+        .e-text { font-size: 7px; color: #888; text-align: center; line-height: 1.2;}
+        .e-title { font-size: 9px; font-weight: bold; color: #444; text-align: center;}
+
+        /* Root SVG for Lines */
+        svg { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+        path { fill: none; stroke: #9aa2a8; stroke-width: 1.5; }
+
+    </style>
+</head>
+<body>
+
+<div class="scale-wrapper">
+    <svg>
+        <!-- Home spine down -->
+        <path d="M 690 280 L 690 320"/>
+        <!-- Horizontal distributor from Home -->
+        <path d="M 190 320 L 1090 320"/>
+        
+        <!-- Drops to pages -->
+        <path d="M 190 320 L 190 360"/> <!-- Register -->
+        <path d="M 440 320 L 440 360"/> <!-- Login -->
+        <path d="M 690 320 L 690 360"/> <!-- Directory -->
+        <path d="M 940 320 L 940 360"/> <!-- About -->
+        <path d="M 1090 320 L 1090 360"/> <!-- Contact -->
+        
+        <!-- Login spine down -->
+        <path d="M 440 560 L 440 600"/>
+        <!-- Horizontal distributor from Login -->
+        <path d="M 190 600 L 690 600"/>
+        
+        <!-- Drops to Dashboards -->
+        <path d="M 190 600 L 190 640"/> <!-- Student DB -->
+        <path d="M 440 600 L 440 640"/> <!-- Teacher DB -->
+        <path d="M 690 600 L 690 640"/> <!-- Admin DB -->
+    </svg>
+
+    <!-- Index / Home -->
+    <div class="wf-box" style="top: 80px; left: 610px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">Home</span></div>
+        <div class="wf-body">
+            <div class="e-hero">Internship System<br><span style="font-size:6px;font-weight:normal">Find your future career</span></div>
+            <div class="e-title" style="text-align: left; margin-top:4px;">Feature Services</div>
+            <div class="e-grid" style="margin-bottom: 4px;">
+                <div class="e-sq green" style="height:25px;">Search</div>
+                <div class="e-sq orange" style="height:25px;">Apply</div>
+                <div class="e-sq green" style="height:25px;">Track</div>
+            </div>
+            <div class="e-lines">
+                <div class="e-line"></div><div class="e-line"></div><div class="e-line-short"></div>
+            </div>
+            <div class="e-hero" style="height: 30px; margin-top: auto; font-size:7px;">University Footer Info</div>
+        </div>
+    </div>
+
+    <!-- Register -->
+    <div class="wf-box" style="top: 360px; left: 110px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">Register</span></div>
+        <div class="wf-body">
+            <div class="e-title">Create Account</div>
+            <div class="e-text" style="margin-bottom:4px;">Join the internship platform</div>
+            <div class="e-form">Student ID</div>
+            <div class="e-form">Full Name</div>
+            <div class="e-form">Email Address</div>
+            <div class="e-form">Password</div>
+            <div class="e-btn">Sign Up</div>
+            <div class="e-text" style="align-self: center; margin-top:4px;">Already have an account? Login</div>
+        </div>
+    </div>
+
+    <!-- Login -->
+    <div class="wf-box" style="top: 360px; left: 360px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">Login</span></div>
+        <div class="wf-body">
+            <div style="height: 15px;"></div>
+            <div class="e-title">Welcome Back</div>
+            <div class="e-text" style="margin-bottom:8px;">Sign in to your dashboard</div>
+            <div class="e-form">Username</div>
+            <div class="e-form">Password<div style="margin-left:auto; font-size:6px;">Forgot?</div></div>
+            <div class="e-btn" style="width:100%; margin-top: 4px;">Login</div>
+            <div style="text-align: center; margin-top: 15px;">
+                <div class="e-sq green" style="width: 25px; height: 25px; display: inline-flex; border-radius: 50%;">User</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Directory -->
+    <div class="wf-box" style="top: 360px; left: 610px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">Directory</span></div>
+        <div class="wf-body">
+            <div class="e-title" style="text-align: left;">Available Internships</div>
+            <div class="e-grid" style="flex-wrap: wrap;">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div class="e-sq green" style="width: 60px; height: 30px;">IT</div>
+                    <div class="e-line"></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div class="e-sq green" style="width: 60px; height: 30px;">Marketing</div>
+                    <div class="e-line"></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div class="e-sq orange" style="width: 60px; height: 30px;">Finance</div>
+                    <div class="e-line"></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div class="e-sq orange" style="width: 60px; height: 30px;">Engineering</div>
+                    <div class="e-line"></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div class="e-sq green" style="width: 60px; height: 30px;">Design</div>
+                    <div class="e-line"></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div class="e-sq green" style="width: 60px; height: 30px;">Sales</div>
+                    <div class="e-line"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About -->
+    <div class="wf-box" style="top: 360px; left: 860px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">About Us</span></div>
+        <div class="wf-body">
+            <div class="e-hero" style="height: 55px; background: white; border:none; display:flex; flex-direction:column;">
+               <div class="e-sq orange" style="width: 30px; height: 30px; border-radius: 50%;">SWU</div>
+               <div class="e-title" style="margin-top:2px;">Internship Team V.1</div>
+            </div>
+            <div class="e-grid" style="margin-top: 10px;">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <div class="e-sq green" style="border-radius: 50%; width: 22px; height: 22px;"></div>
+                    <div class="e-text">Dev</div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <div class="e-sq orange" style="border-radius: 50%; width: 22px; height: 22px;"></div>
+                    <div class="e-text">Lead</div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <div class="e-sq green" style="border-radius: 50%; width: 22px; height: 22px;"></div>
+                    <div class="e-text">Design</div>
+                </div>
+            </div>
+            <div class="e-text" style="margin-top: 10px; text-align:left;">System designed for student placement and monitoring.</div>
+        </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="wf-box" style="top: 360px; left: 1010px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">Contact</span></div>
+        <div class="wf-body">
+             <div class="e-hero" style="height: 35px; background: #d7e8d5; border-color: #8cba8c;">Google Map Embed</div>
+             <div class="e-text" style="text-align:left; margin-top:5px;">Contact Form</div>
+             <div class="e-form">Your Name</div>
+             <div class="e-form">Your Email</div>
+             <div class="e-form" style="height: 30px; align-items:flex-start; padding-top:2px;">Message...</div>
+             <div class="e-btn">Send</div>
+        </div>
+    </div>
+
+
+    <!-- Student Dashboard -->
+    <div class="wf-box" style="top: 640px; left: 110px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">Student Panel</span></div>
+        <div class="wf-body">
+            <div class="e-sidebar-layout">
+                <div class="e-sidebar">
+                    <div class="e-sq green" style="width: 25px; height: 25px; border-radius: 50%; margin-bottom:4px;">Me</div>
+                    <div class="e-title" style="text-align:left; font-size:7px;">Menu</div>
+                    <div class="e-line"></div><div class="e-line"></div>
+                </div>
+                <div class="e-main">
+                    <div style="display: flex; gap: 4px; margin-bottom: 2px;">
+                        <div class="e-sq orange" style="width: 100%; height: 20px;">Request Internship</div>
+                    </div>
+                    <div class="e-form">Company Name</div>
+                    <div class="e-form">Job Position</div>
+                    <div style="display:flex; gap:2px;">
+                        <div class="e-form" style="flex:1">Start Date</div>
+                        <div class="e-form" style="flex:1">End Date</div>
+                    </div>
+                    <div class="e-btn" style="width:100%; margin-top:2px;">Submit Request</div>
+                    <div class="e-title" style="text-align:left; margin-top:4px; font-size:8px;">History</div>
+                    <div class="e-table-row"><span>Google</span><span style="color:#f18c6e">Pending</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher Dashboard -->
+    <div class="wf-box" style="top: 640px; left: 360px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">Teacher Panel</span></div>
+        <div class="wf-body">
+            <div class="e-sidebar-layout">
+                <div class="e-sidebar">
+                    <div class="e-sq orange" style="width: 25px; height: 25px; border-radius: 50%; margin-bottom:4px;">Prof</div>
+                    <div class="e-title" style="text-align:left; font-size:7px;">Menu</div>
+                    <div class="e-line"></div><div class="e-line"></div>
+                </div>
+                <div class="e-main">
+                    <div class="e-grid" style="justify-content: flex-start; gap: 4px; margin-bottom: 4px;">
+                        <div class="e-sq green" style="width: 35px; height: 20px;">KPIs</div>
+                        <div class="e-sq orange" style="width: 35px; height: 20px;">Stats</div>
+                    </div>
+                    <div class="e-title" style="text-align:left;">Pending Approvals</div>
+                    <div class="e-table-row" style="background:none; border-bottom:1px solid #ccc;"><span>Std</span><span>Status</span><span>Act</span></div>
+                    <div class="e-table-row"><span>S.Smith</span><span style="color:#f18c6e">Pending</span><span style="text-decoration:underline;">View</span></div>
+                    <div class="e-table-row"><span>A.Doe</span><span style="color:#f18c6e">Pending</span><span style="text-decoration:underline;">View</span></div>
+                    <div class="e-table-row" style="background:#d7e8d5;"><span>J.Wick</span><span style="color:#8cba8c">Approved</span><span>-</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="wf-box" style="top: 640px; left: 610px;">
+        <div class="wf-header"><span class="wf-dots">•••</span><span class="wf-title">Admin Panel</span></div>
+        <div class="wf-body">
+            <div class="e-sidebar-layout">
+                <div class="e-sidebar">
+                    <div class="e-sq green" style="width: 25px; height: 25px; border-radius: 5%; margin-bottom:4px;">Adm</div>
+                    <div class="e-title" style="text-align:left; font-size:7px;">Setup</div>
+                    <div class="e-line"></div><div class="e-line"></div><div class="e-line"></div>
+                </div>
+                <div class="e-main">
+                    <div class="e-grid" style="justify-content: space-between; margin-bottom: 10px;">
+                        <div class="e-sq green" style="width: 28px; height: 25px;">Users<br>150</div>
+                        <div class="e-sq orange" style="width: 28px; height: 25px;">Reqs<br>45</div>
+                        <div class="e-sq green" style="width: 28px; height: 25px;">Logs<br>1K+</div>
+                    </div>
+                    <div class="e-title" style="text-align:left;">System Accounts</div>
+                    <div class="e-table-row" style="background:none; border-bottom:1px solid #ccc;"><span>ID</span><span>Role</span><span>Edit</span></div>
+                    <div class="e-table-row"><span>U001</span><span>Student</span><span>[x]</span></div>
+                    <div class="e-table-row"><span>T001</span><span>Teacher</span><span>[x]</span></div>
+                    <div class="e-table-row"><span>A001</span><span>Admin</span><span>[x]</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
