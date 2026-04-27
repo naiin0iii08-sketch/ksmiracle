@@ -885,8 +885,10 @@
         }
 
         function exportToExcel() {
-            const url = `api/export_excel.php?type=${currentTab}`;
-            window.location.href = url;
+            const table = document.getElementById('user-table');
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Data" });
+            const date = new Date().toLocaleDateString('th-TH').replace(/\//g, '-');
+            XLSX.writeFile(wb, `SWU_Export_${currentTab}_${date}.xlsx`);
         }
 
         function switchMainView(view) {
@@ -1105,8 +1107,10 @@
         }
 
         function exportRequestsToExcel() {
-            // Re-using the logic but specifying type
-            window.location.href = `api/export_excel.php?type=requests`;
+            const table = document.getElementById('report-table');
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Requests" });
+            const date = new Date().toLocaleDateString('th-TH').replace(/\//g, '-');
+            XLSX.writeFile(wb, `SWU_Internship_Requests_${date}.xlsx`);
         }
 
         function logout() {
